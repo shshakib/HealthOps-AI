@@ -1,0 +1,6 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.zip binary
+# Raw registry responses are hashed byte-for-byte; never normalize their bytes.
+data/clinicaltrials/**/study.json -text

@@ -1,0 +1,8 @@
+{
+  "id": "NCT06750497",
+  "snapshot_id": "fe3b77b762ea832b5f06893b6dd5cfc9e5fe88c06bfd5ba88751b2a741ff4b01",
+  "retrieved_at": "2026-09-14T00:50:32.803163+00:00",
+  "api_url": "https://clinicaltrials.gov/api/v2/studies/NCT06750497",
+  "source_url": "https://clinicaltrials.gov/study/NCT06750497",
+  "selection_reason": "Mixed healthy/T2D cohort; ambiguous source BMI wording remains manual."
+}

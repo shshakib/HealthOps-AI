@@ -1,0 +1,206 @@
+# HealthOps checkpoint
+
+Last updated: 2026-09-14 (Toronto). Milestone 0 is complete. Docker infrastructure,
+Synthea generation/import, patient retrieval, actual registry snapshots, and the
+interpretation approval workflow are implemented. Drafts require actual human review.
+
+## Latest work: provider and API-key settings
+
+- Added native OpenAI Responses, Claude Messages, and Gemini generateContent adapters
+  alongside Ollama and evidence-only mode. Tool results preserve provider call IDs and
+  native state; existing read-only tools and evidence selection validation remain enforced.
+- Dashboard Model connection settings supports provider/model IDs, password key entry,
+  replacement, and removal. Keys live in backend memory and are never echoed. Blank
+  key entry preserves the existing key. Settings alone make no provider call.
+- Optional environment defaults are documented in `.env.example`; dashboard overrides
+  expire on restart. Same-origin/localhost request guards protect configuration and
+  cloud-backed questions. This is still a single-user local demo without authentication.
+- Verification: 118 Python tests and all six headless Edge browser tests passed.
+  Tests cover provider wire formats, response-state preservation, key redaction,
+  cross-site denial, error sanitization, missing keys, switching/removal, and bypass.
+  No real API keys or paid calls were used. Live account/model verification remains open.
+- See [the assistant guide](assistant.md) for setup and storage details.
+- Final Docker deployment is healthy. The live status endpoint lists all five
+  providers and defaults to offline. Dashboard HTML/assets and evidence-only answers
+  passed HTTP checks; existing FHIR patient and review persistence checks passed.
+
+## Previously completed: evidence assistant and optional local agent
+
+- Added an assistant panel to saved assessments for explanations, unresolved evidence,
+  and human review next steps. Citations open the original finding and saved records.
+- Evidence-only fallback works without a model. Optional Ollama integration uses
+  bounded, read-only summary/evidence/workflow tools; only validated criterion
+  selections are rendered using the original finding text. No review or approval writes.
+- Added assistant status and per-screening assistant API endpoints, model bypass,
+  local-only adapter configuration, malformed-response/outage fallback, and tool traces.
+- Verification: 97 Python tests and all five headless Edge browser tests passed.
+  Ruff lint/format passed. Desktop/mobile assistant screenshots were visually inspected.
+  Provider HTTP tests use a local protocol stub; no real model inference was tested.
+- No model has been selected or installed. Live model setup and quality evaluation
+  remain open; do not claim this is a fully verified live LLM deployment. Main-workspace
+  rule drafts still require actual human review. See [the assistant guide](assistant.md).
+- Final Docker rebuild is healthy. Dashboard HTML/assets return HTTP 200. The live
+  assistant returned three saved citations in evidence-only mode and left the complete
+  assessment/review response unchanged. FHIR and review persistence checks passed.
+
+## Previously completed: React coordinator dashboard
+
+- Dashboard at `http://127.0.0.1:18000/`; Swagger remains at `/docs`.
+- Searchable Synthea/fixture patients, health-record browsing, trial selection,
+  criterion findings, source evidence, patient decisions, and paginated review history.
+- Registry source and location snapshots, rule versions, draft revision, and explicit
+  interpretation approval/rejection are available visually. API gates remain enforced.
+- Saved assessment URLs reopen the original evidence and decision history. A stale
+  review loads the newer decision without discarding the user's draft reason and
+  requires another acknowledgement before resubmission.
+- Vite/React frontend is built with a pinned Node image and served by FastAPI in the
+  existing HealthOps container. The running stack still has three services.
+- Python API tests: 73 passing; lint passed. All four headless Edge browser tests passed: patient review/history, interpretation gate/review, mobile layout, and concurrent-review draft preservation. Browser tests run against
+  a separate `.local/dashboard-test-*.sqlite3` ledger on port 18080 and read HAPI.
+  Main-workspace actual-study drafts remain pending; QA approvals are isolated.
+- Desktop/mobile screenshots are retained in `.local/dashboard-desktop.png` and
+  `.local/dashboard-mobile.png`. Browser traces on failure stay under frontend/test-results.
+
+The final Docker rebuild is healthy. The dashboard HTML and both compiled assets return HTTP 200; stack connectivity and existing FHIR/review persistence checks passed after the rebuild.
+
+See [the dashboard guide](dashboard.md) for the complete workflow and checks.
+
+## Latest work: registry snapshots and interpretation review
+
+- Saved NCT07247084, NCT06591286, and NCT06750497 with original API response bytes,
+  SHA-256, source URL, retrieval time, and registry update/recruitment information.
+  Files live in `data/clinicaltrials/` and are included in the Docker image.
+- Registry lists/details/snapshots read offline. Explicit CLI import refreshes data;
+  old snapshots remain available and duplicate responses reuse the same version.
+- Partial age/condition rule proposals cite exact source material. Draft creation
+  is separate from approval, and patient screening is separate from both.
+- Rule approvals/rejections are immutable records in the existing SQLite volume.
+  Hash and source-version gates reject unapproved, rejected, or stale interpretations.
+- Mandatory full-eligibility manual review prevents any partial registry screening
+  from returning all criteria met. Missing condition evidence never proves absence.
+- All three actual-study drafts remain pending; no agent approval was submitted.
+  See [the review guide](trials.md) for the concrete proposed rules and next actions.
+- Verification: 71 tests passed; Ruff lint passed. Live checks served all three
+  snapshots and sourced drafts, verified rule hashes, and confirmed HTTP 409 when
+  each unapproved interpretation was used for screening. The existing FHIR patient
+  and review persistence checks passed after the rebuilt container became healthy.
+
+```powershell
+& '.\.venv\Scripts\python.exe' -m healthops.trials list
+docker compose up --build -d --wait --wait-timeout 600 healthops
+& '.\.venv\Scripts\python.exe' scripts/check_trials.py
+```
+
+The last command prepares drafts and verifies the blocking gate without approving
+anything. Its report is `.local/trials-verification.json`. Actual approval is still
+an open milestone acceptance item. Reviewer labels remain unauthenticated demos.
+
+## Previously completed: Synthea pipeline
+
+- Official Synthea v4.0.0 with checksum validation and pinned Java image; temporary
+  generator container, fixed seeds 42 and reference/end date 2026-09-01.
+- Five patients, seven raw FHIR files, 3,613 resources across 20 resource types.
+  Raw data and provenance are in `.local/synthea/`; HAPI persists the imported data
+  in its PostgreSQL volume. Original files are preserved.
+- Import validates file hashes, stable IDs, and references before writes. UUID and
+  identifier references resolve to imported resources; stable transaction PUTs
+  allow repeat imports without duplicate resources. Failure reports retain progress.
+- API lists Synthea patients with `GET /api/v1/patients?source=hapi` and returns
+  Patient/Condition/Observation evidence via `/api/v1/patients/{id}/record`.
+- Screen with `source=hapi` and fictional trial `DEMO-SYNTHEA-T2D-001`. The original
+  `source=fixtures` workflow remains the default. Human reviews retain HAPI snapshots.
+- Verification: 39 tests passed; lint passed. Two independent generation runs
+  produced seven identical files. Live repeat import preserved all 20 resource-type
+  counts; API retrieval passed for all five patients (including pagination).
+  A simulated review persisted after a HAPI-backed screening.
+- `.local/synthea/verification.json` and `reproduction-check.json` retain evidence.
+  See [the pipeline guide](synthea.md) for commands and limitations.
+
+Generation has already run here; do not overwrite the generated directory. Resume:
+
+```powershell
+docker compose up --build -d --wait --wait-timeout 600
+& '.\.venv\Scripts\python.exe' -m healthops.synthea import --dry-run
+& '.\.venv\Scripts\python.exe' scripts/check_synthea.py
+```
+
+Resume verification on 2026-09-13 confirmed that the interrupted Docker setup
+had completed: all three existing containers were healthy, all 26 tests passed,
+Ruff lint/format and dependency checks passed, and the read-only connectivity and
+persistence checks retrieved the saved FHIR patient, screening snapshot, and
+human-review event. No container rebuild or data reset was needed.
+
+## Completed: milestone 0
+
+- FastAPI local service with three handcrafted synthetic patient bundles and one
+  fictional trial. No clinical or real-trial claims are made for these fixtures.
+- Deterministic screening with evidence references and `met`/`not_met`/`unknown`.
+- Persisted source snapshots, rules/evidence hashes, and a local SQLite review ledger.
+- Explicit review submission, rationale, version conflict handling, and retained history.
+- Python 3.11 virtual environment, installed dependencies, and pip constraints snapshot.
+- Repeatable HTTP smoke demonstration in `scripts/demo.py`.
+- Project brief, milestone acceptance criteria, and setup instructions.
+
+Original milestone verification: 26 tests passed; Ruff lint/format passed. Live HTTP checks inside the
+HealthOps container verified HAPI FHIR R4 connectivity, patient-count search, three
+screening outcomes, a simulated review, and stale revision rejection. Tests emit
+two dependency deprecation warnings (Starlette's
+HTTPX compatibility and AnyIO portal alias); they do not fail the checks. Revisit
+these dependencies when updating the test environment.
+
+## Docker infrastructure
+
+- `compose.yaml` starts HealthOps, HAPI FHIR, and PostgreSQL, in health-check order.
+- Python, HAPI, and PostgreSQL images are pinned to resolved digests. The observed
+  HAPI runtime is 8.12.0 and exposes FHIR R4 (4.0.1).
+- HealthOps runs as a non-root container user. Its SQLite ledger uses the
+  `healthops_reviews` volume; HAPI's PostgreSQL uses `fhir_postgres`.
+- HealthOps is published at `http://127.0.0.1:18000/docs` and HAPI metadata at
+  `http://127.0.0.1:8080/fhir/metadata`. PostgreSQL has no host port.
+- The original Python API on port 8000 and its `.local/` database remain separate.
+- The container's `FHIR_BASE_URL` points to `http://hapi:8080/fhir`. It is tested by
+  the connectivity script and the HAPI patient-data adapter.
+- A labeled synthetic FHIR patient and simulated review were created to test
+  persistence. Both were retrieved successfully after `docker compose down`
+  followed by rebuilding/recreating all three containers with the same volumes.
+- Final status: all three services healthy. Host HTTP checks passed on ports
+  18000 and 8080. The post-recreation connectivity and review smoke checks passed.
+  HAPI now contains five imported Synthea patients plus the earlier labeled
+  infrastructure-test patient. The latter is excluded from the Synthea API list.
+
+## Resume with Docker
+
+```powershell
+docker compose up --build -d --wait --wait-timeout 600
+docker compose ps
+docker compose exec -T healthops python scripts/check_stack.py
+docker compose exec -T healthops python scripts/demo.py
+```
+
+For the persistence check, see [the Docker guide](docker.md). Normal `docker compose
+down` preserves both volumes; `down --volumes` erases them. A generated persistence
+test state file lives in the review volume and is used by:
+
+```powershell
+docker compose exec -T healthops python scripts/check_persistence.py verify
+```
+
+Use the dashboard or `/docs` to submit your own review. Reviewer names are self-reported demo labels;
+authentication and authorization are not implemented. Compose publishes both HTTP
+ports only on loopback. Direct Python development remains available via the README.
+
+## Next: milestone 1
+
+1. Human review of the concrete, partial actual-study interpretations in the trial guide.
+2. Broaden supported criteria only where source semantics and patient evidence are clear.
+3. Select and verify a real local model or a cloud provider/model with your own API key.
+4. Add authenticated access, persisted tracing, and measured model-quality evaluation.
+
+Docker Desktop's Linux engine is available and the local stack has been built.
+No cloud resources or paid model API calls were created. Git is now initialized
+for the v0.1.0 local-prototype checkpoint. Publication preparation adds the MIT
+license, third-party notices, pinned GitHub Actions, and a staged-file secret scan.
+See [release notes](releases/v0.1.0.md) and [automated checks](ci.md).
+
+Live LLM verification, MLflow, real authentication, and Azure remain later work.
+This checkpoint is a verified starter, not the completed portfolio application.

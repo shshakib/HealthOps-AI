@@ -1,0 +1,25 @@
+{
+  "name": "healthops-dashboard",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test:ui": "playwright test",
+    "format": "prettier --write src tests playwright.config.js vite.config.js",
+    "format:check": "prettier --check src tests playwright.config.js vite.config.js"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@vitejs/plugin-react": "^5.1.0",
+    "prettier": "^3.9.6",
+    "vite": "^7.2.0"
+  }
+}

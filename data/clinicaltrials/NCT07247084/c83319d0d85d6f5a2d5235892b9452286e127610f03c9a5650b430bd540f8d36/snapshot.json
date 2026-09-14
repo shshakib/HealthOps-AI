@@ -1,0 +1,8 @@
+{
+  "id": "NCT07247084",
+  "snapshot_id": "c83319d0d85d6f5a2d5235892b9452286e127610f03c9a5650b430bd540f8d36",
+  "retrieved_at": "2026-09-14T00:50:32.252560+00:00",
+  "api_url": "https://clinicaltrials.gov/api/v2/studies/NCT07247084",
+  "source_url": "https://clinicaltrials.gov/study/NCT07247084",
+  "selection_reason": "Negative example: a diabetes search result that excludes diabetes."
+}
