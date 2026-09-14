@@ -4,7 +4,7 @@
 
 **v0.1.0 · Local prototype**
 
-A clinical-trial prescreening workbench portfolio project. The intended workflow is:
+A clinical-trial prescreening workbench portfolio project. The workflow is:
 read synthetic patient records, compare selected trial criteria, show evidence and
 unknowns, then let a human record the next screening step.
 
@@ -19,6 +19,58 @@ visible for manual review. The synthetic example assessment date is **2026-09-01
 
 Original code is licensed under [MIT](LICENSE). See [third-party notices](THIRD_PARTY_NOTICES.md)
 for public registry records and upstream dependencies.
+
+## Interface preview
+
+![HealthOps dashboard showing synthetic patient selection, health-record counts, and a trial-screening form](docs/images/patient-screening-dashboard.png)
+
+*Actual local interface with imported Synthea patients and a fictional screening
+exercise, captured September 14, 2026. Counts reflect that demonstration workspace;
+a fresh checkout starts with an empty HAPI database. All patients shown are synthetic.*
+
+## What happens from data to a human decision
+
+HealthOps compares a selected patient's recorded evidence with a limited set of
+trial requirements. It shows **met**, **not met**, or **unknown** for each requirement,
+preserves the evidence used, and lets a human record the next screening step.
+
+```mermaid
+flowchart TD
+    S["Synthea generates synthetic FHIR files"] --> H["Validated import into HAPI FHIR<br/>Patient records stored in PostgreSQL"]
+    F["Bundled handcrafted patient fixtures"] --> P["Select a patient, trial, and assessment date"]
+    H --> P
+
+    T["ClinicalTrials.gov API"] --> V["Save dated study snapshot<br/>Source URL and checksum retained"]
+    V --> D["Prepare a partial rule interpretation"]
+    D --> A{"Human approves this<br/>exact rule and study version?"}
+    A -->|"No: revise or leave blocked"| D
+    A -->|Yes| P
+    X["Fictional trial exercises<br/>Bundled demonstration rules"] --> P
+
+    P --> E["Deterministic screening engine<br/>Compare supported criteria with recorded evidence"]
+    E --> R["Save assessment snapshot<br/>Findings, patient evidence, rules, and version hashes"]
+    R --> U["Coordinator inspects findings<br/>Met / Not met / Unknown and source evidence"]
+    R -.-> L["Optional evidence assistant<br/>Read-only tools or evidence-only fallback"]
+    L -.->|"Cited explanations; no decisions"| U
+    U --> J["Human records decision and reason<br/>Request information / Advance for screening / Dismiss"]
+    J --> Q["Append review event to SQLite ledger<br/>Keep original evidence and prior decisions"]
+```
+
+1. **Prepare the inputs.** Import generated patient records, or use the small bundled
+   fixtures. Actual registry trials use saved snapshots and separately reviewed rule
+   interpretations; fictional exercises are available immediately.
+   Registry screenings require HAPI-backed patients; handcrafted patient fixtures
+   pair with their own fictional trial exercise.
+2. **Screen and inspect.** The engine evaluates supported criteria and saves the exact
+   evidence used. Missing or stale evidence stays unknown. Actual registry assessments
+   also retain a mandatory full-eligibility requirement for manual review.
+3. **Ask for an explanation, optionally.** Ollama, OpenAI, Claude, or Gemini can select
+   evidence through restricted tools. The server assembles answers from saved findings.
+   This step also works in explicitly labeled evidence-only mode without an LLM.
+4. **Record a human decision.** The coordinator reviews the evidence and records a
+   reason. Advancing means further human screening; the program does not contact
+   patients, establish clinical eligibility, or enroll anyone. Updated interpretations
+   produce new assessments rather than rewriting earlier evidence and decisions.
 
 ## Start all three services with Docker
 
