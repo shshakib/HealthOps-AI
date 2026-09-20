@@ -7,9 +7,12 @@ simulated review to the local demo ledger; it does not contact external services
 import json
 import os
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+from urllib.request import Request
 
-BASE_URL = "http://127.0.0.1:8000"
+from healthops.cli_session import signed_in_opener
+
+BASE_URL = os.environ.get("HEALTHOPS_API_URL", "http://127.0.0.1:8000")
+opener = None
 DISPLAY_BASE_URL = os.environ.get("HEALTHOPS_PUBLIC_URL", BASE_URL).rstrip("/")
 
 
@@ -17,10 +20,10 @@ def call(path: str, payload: dict | None = None) -> tuple[int, dict]:
     request = Request(
         BASE_URL + path,
         data=json.dumps(payload).encode() if payload is not None else None,
-        headers={"Content-Type": "application/json"},
+        headers={"Content-Type": "application/json", "X-HealthOps-Request": "1"},
     )
     try:
-        with urlopen(request, timeout=10) as response:
+        with opener.open(request, timeout=30) as response:
             return response.status, json.load(response)
     except HTTPError as exc:
         return exc.code, json.load(exc)
@@ -32,6 +35,8 @@ def require(condition: bool, message: str) -> None:
 
 
 def main() -> None:
+    global opener
+    opener = signed_in_opener(BASE_URL)
     status, health = call("/health")
     require(status == 200 and health.get("mode") == "synthetic_local_demo", "Wrong API mode.")
     scenarios = {

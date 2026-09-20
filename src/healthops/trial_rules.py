@@ -53,7 +53,7 @@ class RuleProposal(BaseModel):
 
 class RuleReview(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
-    reviewer: str = Field(min_length=2, max_length=100)
+    reviewer: str | None = Field(default=None, min_length=2, max_length=100)
     decision: Literal["approve", "reject"]
     reason: str = Field(min_length=10, max_length=2000)
     expected_rules_hash: str = Field(pattern=r"^[a-f0-9]{64}$")

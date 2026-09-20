@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 import pytest
-from fastapi.testclient import TestClient
+from auth_support import TestClient
 
 from healthops.api import create_app
 from healthops.demo_data import SYNTHEA_TRIAL, get_patient

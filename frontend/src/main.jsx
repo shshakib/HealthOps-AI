@@ -25,27 +25,8 @@ import {
 import "./style.css";
 import Assistant from "./Assistant.jsx";
 
-async function api(path, body) {
-  const response = await fetch(`/api/v1${path}`, {
-    method: body === undefined ? "GET" : "POST",
-    headers: { "Content-Type": "application/json", "X-HealthOps-Request": "1" },
-    body: body === undefined ? undefined : JSON.stringify(body),
-    signal: AbortSignal.timeout(60000),
-  });
-  const data = await response.json();
-  if (!response.ok) {
-    const error = new Error(
-      Array.isArray(data.detail)
-        ? data.detail
-            .map((d) => `${d.loc.slice(1).join(" ")}: ${d.msg}`)
-            .join("; ")
-        : data.detail || "Request failed. Please retry.",
-    );
-    error.status = response.status;
-    throw error;
-  }
-  return data;
-}
+import AuthGate, { authApi as api, useIdentity } from "./Auth.jsx";
+
 const labels = {
   pending_review: "Awaiting review",
   approved: "Approved",
@@ -154,8 +135,8 @@ function Modal({ title, children, close }) {
   );
 }
 function ReviewForm({ kind, item, onSaved, onConflict }) {
-  const [reviewer, setReviewer] = useState(""),
-    [reason, setReason] = useState(""),
+  const identity = useIdentity();
+  const [reason, setReason] = useState(""),
     [decision, setDecision] = useState(""),
     [ack, setAck] = useState(false),
     [busy, setBusy] = useState(false),
@@ -202,7 +183,6 @@ function ReviewForm({ kind, item, onSaved, onConflict }) {
           ? `/rule-sets/${item.id}/reviews`
           : `/screenings/${item.id}/reviews`,
         {
-          reviewer,
           reason,
           decision,
           ...(rules
@@ -224,6 +204,12 @@ function ReviewForm({ kind, item, onSaved, onConflict }) {
       setBusy(false);
     }
   }
+  if (!identity.canReview)
+    return (
+      <p className="note">
+        A reviewer account is required to record a decision.
+      </p>
+    );
   return (
     <form onSubmit={submit} className="review-form">
       <div className="section-heading">
@@ -257,18 +243,9 @@ function ReviewForm({ kind, item, onSaved, onConflict }) {
           </label>
         ))}
       </div>
-      <label className="field">
-        Reviewer label
-        <input
-          value={reviewer}
-          onChange={(e) => setReviewer(e.target.value)}
-          placeholder="Your name or reviewer label"
-          required
-          minLength={2}
-          maxLength={100}
-          disabled={busy}
-        />
-      </label>
+      <p>
+        Reviewer: <strong>{identity.username}</strong> � Signed-in account
+      </p>
       <label className="field">
         Reason
         <textarea
@@ -301,13 +278,7 @@ function ReviewForm({ kind, item, onSaved, onConflict }) {
       <ErrorBox>{error}</ErrorBox>
       <button
         className="primary"
-        disabled={
-          busy ||
-          !ack ||
-          !decision ||
-          reviewer.trim().length < 2 ||
-          reason.trim().length < 10
-        }
+        disabled={busy || !ack || !decision || reason.trim().length < 10}
       >
         {busy ? (
           <LoaderCircle className="spin" size={16} />
@@ -604,7 +575,11 @@ function ScreeningResult({ item, update, onEvidence }) {
                   <Badge value={review.decision} />
                   <p>{review.reason}</p>
                   <small>
-                    {review.reviewer} · {date(review.recorded_at, true)}
+                    {review.reviewer} · {date(review.recorded_at, true)} ·{" "}
+                    {review.identity_verification ===
+                    "authenticated_local_account"
+                      ? "Signed-in account"
+                      : "Legacy unverified label"}
                   </small>
                 </article>
               ))
@@ -737,6 +712,7 @@ function RuleEditor({ trial, rules, saved, close }) {
   );
 }
 function TrialWorkspace({ trials, selected, select, refresh, notify }) {
+  const { canReview } = useIdentity();
   const trial = trials.find((t) => t.id === selected),
     [activeRule, setActiveRule] = useState(""),
     [editing, setEditing] = useState(null),
@@ -876,7 +852,7 @@ function TrialWorkspace({ trials, selected, select, refresh, notify }) {
               <button
                 className="secondary"
                 onClick={draft}
-                disabled={busy || !trial.eligibility}
+                disabled={!canReview || busy || !trial.eligibility}
               >
                 {busy ? (
                   <LoaderCircle className="spin" size={16} />
@@ -941,7 +917,11 @@ function TrialWorkspace({ trials, selected, select, refresh, notify }) {
                     for manual assessment.
                   </p>
                 </div>
-                <button className="secondary" onClick={() => setEditing(rule)}>
+                <button
+                  className="secondary"
+                  disabled={!canReview}
+                  onClick={() => setEditing(rule)}
+                >
                   Revise interpretation
                 </button>
                 {rule.status === "pending_review" &&
@@ -966,7 +946,11 @@ function TrialWorkspace({ trials, selected, select, refresh, notify }) {
                       <p>{rule.review.reason}</p>
                       <small>
                         {rule.review.reviewer} ·{" "}
-                        {date(rule.review.recorded_at, true)}
+                        {rule.review.identity_verification ===
+                        "authenticated_local_account"
+                          ? "Signed-in account"
+                          : "Legacy unverified label"}{" "}
+                        · {date(rule.review.recorded_at, true)}
                       </small>
                     </article>
                   )
@@ -995,6 +979,7 @@ function TrialWorkspace({ trials, selected, select, refresh, notify }) {
 }
 
 function App() {
+  const { canReview } = useIdentity();
   const [view, setView] = useState("screen"),
     [patients, setPatients] = useState({ hapi: [], fixtures: [] }),
     [trials, setTrials] = useState([]),
@@ -1597,6 +1582,7 @@ function App() {
                             className="primary"
                             disabled={
                               busy ||
+                              !canReview ||
                               recordBusy ||
                               !record ||
                               !selectedTrial ||
@@ -1809,4 +1795,8 @@ function Stat({ icon: Icon, value, label, detail }) {
     </section>
   );
 }
-createRoot(document.getElementById("root")).render(<App />);
+createRoot(document.getElementById("root")).render(
+  <AuthGate>
+    <App />
+  </AuthGate>,
+);

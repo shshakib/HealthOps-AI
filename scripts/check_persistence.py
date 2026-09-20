@@ -12,6 +12,10 @@ from urllib.error import URLError
 from urllib.request import Request, urlopen
 from uuid import uuid4
 
+from healthops.cli_session import signed_in_opener
+
+opener = None
+
 HEALTHOPS = "http://127.0.0.1:8000"
 
 
@@ -20,9 +24,15 @@ def request_json(url: str, data: dict | None = None, method: str | None = None) 
         url,
         data=json.dumps(data).encode() if data is not None else None,
         method=method,
-        headers={"Content-Type": "application/json", "Accept": "application/json"},
+        headers={
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-HealthOps-Request": "1",
+        },
     )
-    with urlopen(request, timeout=30) as response:
+    with (opener.open if url.startswith(HEALTHOPS + "/") else urlopen)(
+        request, timeout=30
+    ) as response:
         return json.load(response)
 
 
@@ -30,6 +40,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["seed", "verify"])
     args = parser.parse_args()
+    global opener
+    opener = signed_in_opener(HEALTHOPS)
     fhir = os.environ.get("FHIR_BASE_URL", "http://hapi:8080/fhir").rstrip("/")
     database = Path(os.environ.get("HEALTHOPS_DB_PATH", ".local/healthops.sqlite3"))
     state_path = database.parent / "docker-persistence-check.json"

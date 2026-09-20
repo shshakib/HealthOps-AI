@@ -1,5 +1,16 @@
 import { test, expect } from "@playwright/test";
 
+test.beforeEach(async ({ page, request }) => {
+  const options = {
+    headers: { "X-HealthOps-Request": "1" },
+    data: { username: "ui-admin", password: "isolated-browser-test-password" },
+  };
+  expect((await request.post("/api/v1/auth/login", options)).ok()).toBeTruthy();
+  expect(
+    (await page.request.post("/api/v1/auth/login", options)).ok(),
+  ).toBeTruthy();
+});
+
 test("provider settings save and clear keys without exposing them or calling a model", async ({
   page,
   request,
@@ -193,9 +204,7 @@ test("browse evidence, screen a fixture, save a review, and reopen history", asy
   await expect(page.getByText("8.2 %", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Close dialog" }).click();
   await page.getByRole("radio", { name: /Request information/ }).check();
-  await page
-    .getByLabel("Reviewer label", { exact: true })
-    .fill("Simulated dashboard test");
+
   await page
     .getByRole("textbox", { name: "Reason", exact: true })
     .fill("Browser test: additional source evidence is needed.");
@@ -208,9 +217,7 @@ test("browse evidence, screen a fixture, save a review, and reopen history", asy
     "Browser test: additional source evidence is needed.",
   );
   await page.reload();
-  await expect(page.locator(".timeline-item")).toContainText(
-    "Simulated dashboard test",
-  );
+  await expect(page.locator(".timeline-item")).toContainText("ui-admin");
   await page
     .getByRole("navigation")
     .getByRole("button", { name: /Review history/ })
@@ -256,9 +263,7 @@ test("rule gate, source inspection, and interpretation review in isolated ledger
     page.getByRole("heading", { name: "Review this interpretation" }),
   ).toBeVisible();
   await page.getByRole("radio", { name: /Approve interpretation/ }).check();
-  await page
-    .getByLabel("Reviewer label", { exact: true })
-    .fill("Simulated UI QA reviewer");
+
   await page
     .getByRole("textbox", { name: "Reason", exact: true })
     .fill(
@@ -342,13 +347,12 @@ test("a concurrent review preserves the draft and requires renewed acknowledgeme
   ).toBeVisible();
   const id = page.url().split("#assessment/")[1];
   await page.getByRole("radio", { name: /Request information/ }).check();
-  await page
-    .getByLabel("Reviewer label", { exact: true })
-    .fill("Simulated concurrent UI test");
+
   const reason = "Preserve this draft while a newer review is loaded.";
   await page.getByRole("textbox", { name: "Reason", exact: true }).fill(reason);
   await page.getByRole("checkbox").check();
   const other = await request.post(`/api/v1/screenings/${id}/reviews`, {
+    headers: { "X-HealthOps-Request": "1" },
     data: {
       reviewer: "Simulated second reviewer",
       reason: "Another reviewer saved a decision first.",

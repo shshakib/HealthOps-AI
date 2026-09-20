@@ -1,4 +1,4 @@
-"""Small local review ledger. This is not authenticated or tamper-proof audit storage."""
+"""Small local review ledger. Authenticated decisions; not tamper-proof audit storage."""
 
 import json
 import sqlite3
@@ -33,6 +33,17 @@ class ReviewStore:
                     rule_set_id TEXT PRIMARY KEY REFERENCES rule_sets(id), event TEXT NOT NULL
                 );
             """)
+
+    @staticmethod
+    def identity(actor: dict | None, request: dict) -> dict:
+        if actor is None:
+            return {"identity_verification": "self_reported_demo_only"}
+        return {
+            "reviewer": actor["username"],
+            "actor_id": actor["id"],
+            "actor_role": actor["role"],
+            "identity_verification": "authenticated_local_account",
+        }
 
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.path)
@@ -78,7 +89,7 @@ class ReviewStore:
             ).fetchall()
         return [self.get_rule_set(row[0]) for row in rows]
 
-    def review_rule_set(self, identifier: str, request: dict) -> dict:
+    def review_rule_set(self, identifier: str, request: dict, *, actor: dict | None = None) -> dict:
         snapshot = self.get_rule_set(identifier)
         if request["expected_rules_hash"] != snapshot["rules_hash"]:
             raise ValueError("Rules hash mismatch. Reload the interpretation before review.")
@@ -86,7 +97,7 @@ class ReviewStore:
             **request,
             "id": str(uuid4()),
             "recorded_at": datetime.now(UTC).isoformat(),
-            "identity_verification": "self_reported_demo_only",
+            **self.identity(actor, request),
             "snapshot_id": snapshot["document"]["snapshot_id"],
         }
         try:
@@ -168,7 +179,7 @@ class ReviewStore:
             result["review_status"] = result["reviews"][-1]["decision"]
         return result
 
-    def add_review(self, screening_id: str, request: dict) -> dict:
+    def add_review(self, screening_id: str, request: dict, *, actor: dict | None = None) -> dict:
         snapshot = self.get_screening(screening_id)
         revision = request.pop("expected_revision")
         if revision != snapshot["revision"]:
@@ -179,7 +190,7 @@ class ReviewStore:
             "screening_id": screening_id,
             "revision": revision + 1,
             "recorded_at": datetime.now(UTC).isoformat(),
-            "identity_verification": "self_reported_demo_only",
+            **self.identity(actor, request),
             "rules_version": snapshot["rules_version"],
             "rules_hash": snapshot["rules_hash"],
             "evidence_hash": snapshot["evidence_hash"],

@@ -39,8 +39,6 @@ services:
       HAPI_FHIR_FHIR_VERSION: R4
       SPRING_AI_MCP_SERVER_ENABLED: "false"
       JAVA_TOOL_OPTIONS: -Xms256m -Xmx1536m
-    ports:
-      - "127.0.0.1:${FHIR_PORT:-8080}:8080"
     depends_on:
       postgres:
         condition: service_healthy

@@ -1,5 +1,5 @@
 import pytest
-from fastapi.testclient import TestClient
+from auth_support import TestClient
 
 from healthops.api import create_app
 
@@ -37,7 +37,7 @@ def test_human_review_preserves_snapshot_and_prior_reviews(client):
     assert reviewed["source_snapshot"] == original["source_snapshot"]
     assert reviewed["reviews"][0]["evidence_hash"] == original["evidence_hash"]
     assert reviewed["reviews"][0]["rules_hash"] == original["rules_hash"]
-    assert reviewed["reviews"][0]["identity_verification"] == "self_reported_demo_only"
+    assert reviewed["reviews"][0]["identity_verification"] == "authenticated_local_account"
     second = client.post(
         url, json=review_request(expected_revision=1, decision="request_information")
     )

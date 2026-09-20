@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { MessageSquareText, ArrowUpRight, LoaderCircle } from "lucide-react";
+import { useIdentity } from "./Auth.jsx";
 import ProviderSettings from "./ProviderSettings.jsx";
 
 const questions = [
@@ -27,6 +28,7 @@ const reasons = {
 };
 
 export default function Assistant({ item, api, onCitation }) {
+  const { role } = useIdentity();
   const [question, setQuestion] = useState(questions[0]);
   const [answer, setAnswer] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -75,7 +77,7 @@ export default function Assistant({ item, api, onCitation }) {
         Explore the findings and what remains unresolved. Every answer stays
         linked to this saved assessment.
       </p>
-      {status?.providers?.length > 0 && (
+      {role === "admin" && status?.providers?.length > 0 && (
         <ProviderSettings
           status={status}
           api={api}

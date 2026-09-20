@@ -1,5 +1,27 @@
 # HealthOps checkpoint
 
+## Latest checkpoint — September 20, 2026
+
+Local accounts and session authentication now protect the dashboard and API.
+Viewer/Reviewer/Admin permissions are enforced on the server. Review events take
+identity from the session; old ledger events are retained unchanged and shown as
+legacy unverified labels. Admins manage accounts and AI settings. Session expiry,
+logout, role/password changes, disable/re-enable, login throttling, and CSRF are
+covered by automated checks. See [authentication](authentication.md) for setup.
+Default Compose exposes only HealthOps; HAPI maintenance access is an explicit override.
+The Docker rebuild and read-only login check retained five Synthea patients, eight
+saved assessments, and three registry studies. The local administrator credential
+is in an ignored `.local/` file; no credential is part of the repository.
+All nine browser workflows passed, including the three authentication scenarios.
+Existing test scripts now prompt for a signed-in account.
+
+The earlier checkpoints below are historical. Statements about unauthenticated
+HealthOps APIs or always-published HAPI ports no longer describe the current default.
+MLflow, live-provider verification, enterprise SSO, and cloud deployment remain future work.
+
+---
+
+
 Last updated: 2026-09-14 (Toronto). Milestone 0 is complete. Docker infrastructure,
 Synthea generation/import, patient retrieval, actual registry snapshots, and the
 interpretation approval workflow are implemented. Drafts require actual human review.

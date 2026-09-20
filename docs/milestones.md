@@ -75,6 +75,10 @@ Done when:
 
 ## 3 — Access control and measured quality
 
+Local accounts, server-enforced roles, user management, session revocation, and
+authenticated reviewer attribution are implemented. See [authentication](authentication.md).
+MLflow and a reserved evaluation report remain separate work.
+
 Add authenticated identities, server-enforced permissions, MLflow tracing,
 evaluation fixtures, error handling, and GitHub Actions checks.
 

@@ -8,7 +8,7 @@ connects imported records to HealthOps screening and human review.
 | Service | Address on your computer | Storage |
 | --- | --- | --- |
 | HealthOps dashboard / API | http://127.0.0.1:18000/ (Swagger at `/docs`) | `healthops_reviews` volume |
-| HAPI FHIR R4 | http://127.0.0.1:8080/fhir/metadata | PostgreSQL service |
+| HAPI FHIR R4 | Internal Docker network (maintenance override available) | PostgreSQL service |
 | PostgreSQL | Internal Docker network only | `fhir_postgres` volume |
 
 Inside Docker, services use the names `healthops`, `hapi`, and `postgres`. For
@@ -34,18 +34,21 @@ docker compose ps
 PostgreSQL must become healthy before HAPI starts. HAPI's health check requests
 FHIR metadata before HealthOps starts. HealthOps runs as a non-root user and checks
 its own `/health` endpoint. The Dockerfile listens on all interfaces *inside* the
-container; Compose publishes both HTTP ports only on your computer's loopback.
+container; Compose publishes only HealthOps on your computer's loopback.
 
 Port 18000 avoids colliding with existing services on ports 8000 and 8001.
 The optional `.env.example` documents port/password overrides. Defaults work without
 creating `.env`. The database password is a deliberately public local-demo value;
-this unauthenticated synthetic-data stack is not a production deployment.
+this synthetic-data stack is not a production deployment.
+
+Create the first administrator and sign in using the [login guide](authentication.md).
+HAPI maintenance access requires the explicit `compose.fhir-dev.yaml` override.
 
 ## Verify
 
 ```powershell
 docker compose exec -T healthops python scripts/check_stack.py
-docker compose exec -T healthops python scripts/demo.py
+docker compose exec healthops python scripts/demo.py
 ```
 
 The first command checks actual network access from HealthOps to HAPI and a FHIR
@@ -72,10 +75,10 @@ To verify persistence yourself (creates one labeled synthetic FHIR test patient
 and one simulated review):
 
 ```powershell
-docker compose exec -T healthops python scripts/check_persistence.py seed
+docker compose exec healthops python scripts/check_persistence.py seed
 docker compose down
 docker compose up -d --wait --wait-timeout 600
-docker compose exec -T healthops python scripts/check_persistence.py verify
+docker compose exec healthops python scripts/check_persistence.py verify
 ```
 
 This retains the test patient and review for inspection. They are infrastructure

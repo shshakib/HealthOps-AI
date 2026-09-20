@@ -1,4 +1,4 @@
-"""Local API for Synthea records and fixtures; authentication is a later milestone."""
+"""Authenticated local API for synthetic trial screening and human review."""
 
 import os
 from datetime import date
@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Literal
 from urllib.parse import urlsplit
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from healthops import __version__
 from healthops.assistant import AssistantRequest, EvidenceAssistant
+from healthops.auth import install_auth
 from healthops.demo_data import DEMO_AS_OF, PATIENTS, SYNTHEA_TRIAL, TRIAL, get_patient
 from healthops.fhir import FhirClient, FhirError
 from healthops.providers import ProviderSettings, ProviderUpdate
@@ -40,10 +41,14 @@ class ScreeningRequest(BaseModel):
 
 class ReviewRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
-    reviewer: str = Field(min_length=2, max_length=100, examples=["Demo coordinator"])
+    reviewer: str | None = Field(default=None, min_length=2, max_length=100)
     decision: Literal["advance_for_screening", "dismiss", "request_information"]
     reason: str = Field(min_length=10, max_length=2000)
     expected_revision: int = Field(default=0, ge=0)
+
+
+def request_header(x_healthops_request: str = Header(default="1")):
+    """Expose the required mutation header in interactive API documentation."""
 
 
 def create_app(
@@ -67,6 +72,7 @@ def create_app(
     )
     app = FastAPI(
         title="HealthOps local prototype",
+        dependencies=[Depends(request_header)],
         version=__version__,
         description=(
             "Synthea patients from HAPI (source=hapi) or bundled fixtures. "
@@ -76,10 +82,12 @@ def create_app(
             "trials, create a screening, then record a human review using the returned ID. "
             "Optional Ollama, OpenAI, Claude, or Gemini models use read-only evidence tools, "
             "with an offline fallback. "
-            "Authentication and cloud deployment are not implemented. "
-            "Reviewer names are self-reported. Run on localhost only."
+            "Sign in through the dashboard first. Reviewer identity comes from the session. "
+            "Local accounts, role permissions, and synthetic data only."
         ),
     )
+
+    install_auth(app, store.path)
 
     @app.get("/health")
     def health() -> dict:
@@ -181,7 +189,7 @@ def create_app(
         return load_rule_set(rule_set_id)
 
     @app.post("/api/v1/rule-sets/{rule_set_id}/reviews", status_code=201)
-    def review_rules(rule_set_id: str, request: RuleReview) -> dict:
+    def review_rules(rule_set_id: str, request: RuleReview, http_request: Request) -> dict:
         rules = load_rule_set(rule_set_id)
         snapshot = load_study(rules["document"]["trial_id"])
         if rules["document"]["snapshot_id"] != snapshot["snapshot_id"]:
@@ -189,7 +197,9 @@ def create_app(
                 409, "Study snapshot changed; create and review a new interpretation."
             )
         try:
-            return store.review_rule_set(rule_set_id, request.model_dump())
+            return store.review_rule_set(
+                rule_set_id, request.model_dump(), actor=http_request.state.user
+            )
         except ValueError as exc:
             raise HTTPException(409, str(exc)) from exc
 
@@ -259,9 +269,11 @@ def create_app(
             raise HTTPException(404, "Screening not found.") from exc
 
     @app.post("/api/v1/screenings/{screening_id}/reviews", status_code=201)
-    def review(screening_id: str, request: ReviewRequest) -> dict:
+    def review(screening_id: str, request: ReviewRequest, http_request: Request) -> dict:
         try:
-            return store.add_review(screening_id, request.model_dump())
+            return store.add_review(
+                screening_id, request.model_dump(), actor=http_request.state.user
+            )
         except KeyError as exc:
             raise HTTPException(404, "Screening not found.") from exc
         except ValueError as exc:

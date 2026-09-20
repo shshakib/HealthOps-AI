@@ -1,5 +1,8 @@
 # Registry snapshots and human-reviewed interpretations
 
+Sign in as Reviewer or Admin before writing rules or reviews.
+See [login and API access](authentication.md); all mutations require the request header.
+
 The app now has three actual ClinicalTrials.gov study records alongside the two
 fictional trial exercises. All patients remain synthetic. Browse
 [the registry study list](http://127.0.0.1:18000/api/v1/trials?source=registry).
@@ -14,7 +17,7 @@ fictional trial exercises. All patients remain synthetic. Browse
 - Partial, versioned interpretations with exact source quotations. Drafts propose
   whole-year age bounds and two narrowly scoped, curated T2D code mappings.
 - Separate interpretation approval/rejection and patient-screening review. Both
-  record rationale and a self-reported reviewer label in the local SQLite ledger.
+  record rationale and the authenticated reviewer identity in the local SQLite ledger.
 - Screening requires an approved rule set for the exact currently selected study
   snapshot. Changed registry data needs a new interpretation and review. Saved
   patient screenings retain their original registry, rules, approval, and evidence.
@@ -53,7 +56,6 @@ Open [Swagger](http://127.0.0.1:18000/docs):
 
 ```json
 {
-  "reviewer": "YOUR REVIEWER LABEL",
   "decision": "approve",
   "reason": "EXPLAIN YOUR REVIEW OF THE SOURCE AND PARTIAL INTERPRETATION",
   "expected_rules_hash": "COPY THE DRAFT'S RULES_HASH"
@@ -62,8 +64,8 @@ Open [Swagger](http://127.0.0.1:18000/docs):
 
 Use `reject` when the proposal is incorrect. Approval means acceptance of a limited
 demo interpretation, not clinical validation. An interpretation can be reviewed
-once; changing it requires a new version. Revocation and authenticated reviewers
-are future work. Do not activate these demo rules for real patients.
+once; changing it requires a new version. Interpretation revocation
+is future work. Do not activate these demo rules for real patients.
 
 5. After approval, submit a screening with an explicit assessment date:
 

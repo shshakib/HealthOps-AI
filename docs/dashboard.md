@@ -1,5 +1,8 @@
 # HealthOps dashboard
 
+Sign in first using the [login guide](authentication.md). Viewer accounts are read-only;
+Reviewer and Admin accounts can record screening and interpretation decisions.
+
 Open [the dashboard](http://127.0.0.1:18000/). The React interface is served by
 HealthOps, so the local stack still needs only three running containers. Node
 is used during the image build; it is not a fourth application service.
@@ -11,7 +14,7 @@ is used during the image build; it is not a fourth application service.
 - **Evidence review:** expand each criterion, inspect cited patient resources and
   trial text, and see met, not-met, and unknown findings.
 - **Patient decisions:** request information, advance for further screening, or
-  dismiss a match. A reviewer label, reason, and acknowledgement are required.
+  dismiss a match. A signed-in Reviewer/Admin account, reason, and acknowledgement are required.
 - **Trial rules:** inspect full registry eligibility text, dated recruitment and
   location information, draft mappings, and previous interpretation versions.
   Prepare or revise a draft, then explicitly approve or reject it.
@@ -26,7 +29,7 @@ and requires renewed acknowledgement before another submission.
 The three existing actual-study drafts in the main workspace remain pending human
 review. UI testing uses a separate ledger, not your main decisions. The dashboard
 includes an [evidence assistant](assistant.md) with Ollama, OpenAI, Claude, and Gemini adapters
-and explicit offline fallback. It does not authenticate reviewers, contact patients,
+and explicit offline fallback. It uses authenticated reviewer accounts but does not contact patients,
 or enroll anyone.
 
 ## Try a complete workflow
@@ -37,7 +40,7 @@ or enroll anyone.
    Use **Ask about this assessment** to explain the result or show missing evidence.
    Expand **Model connection settings** to choose a provider/model and enter a cloud API key.
    Keys entered here stay in server memory for the current session; saving does not call a model.
-4. Choose a next step, enter a reviewer label and reason, acknowledge the evidence,
+4. Choose a next step, enter a reason under your signed-in identity, acknowledge the evidence,
    and save your review.
 5. Open **Review history** and reopen that assessment.
 

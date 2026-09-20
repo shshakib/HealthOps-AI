@@ -4,7 +4,7 @@ from datetime import date
 from urllib.error import HTTPError
 
 import pytest
-from fastapi.testclient import TestClient
+from auth_support import TestClient
 
 from healthops import providers
 from healthops.api import create_app
@@ -101,7 +101,10 @@ def test_configured_cloud_requires_same_origin_header_and_can_bypass(client, mon
     )
     item = client.post("/api/v1/screenings", json={}).json()
     path = f"/api/v1/screenings/{item['id']}/assistant"
-    assert client.post(path, json={"question": "Explain this screening"}).status_code == 403
+    assert (
+        client.post(path, headers={}, json={"question": "Explain this screening"}).status_code
+        == 403
+    )
     result = client.post(path, json={"question": "Explain this screening", "use_model": False})
     assert result.status_code == 200 and result.json()["mode"] == "fallback"
 

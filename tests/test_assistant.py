@@ -5,7 +5,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from threading import Thread
 
 import pytest
-from fastapi.testclient import TestClient
+from auth_support import TestClient
 
 from healthops.api import create_app
 from healthops.assistant import AssistantRequest, EvidenceAssistant, ModelFailure, OllamaClient

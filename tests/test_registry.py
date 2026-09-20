@@ -5,7 +5,7 @@ from datetime import date
 from io import BytesIO
 
 import pytest
-from fastapi.testclient import TestClient
+from auth_support import TestClient
 
 from healthops.api import create_app
 from healthops.demo_data import get_patient

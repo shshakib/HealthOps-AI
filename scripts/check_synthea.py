@@ -7,8 +7,9 @@ import argparse
 import json
 from datetime import UTC, datetime
 from urllib.parse import urlencode
-from urllib.request import Request, urlopen
+from urllib.request import Request
 
+from healthops.cli_session import signed_in_opener
 from healthops.fhir import SYNTHEA_TAG, FhirClient
 from healthops.synthea import DATA, import_data, save_json
 
@@ -18,6 +19,7 @@ def main():
     parser.add_argument("--api-url", default="http://127.0.0.1:18000")
     parser.add_argument("--fhir-url", default="http://127.0.0.1:8080/fhir")
     args = parser.parse_args()
+    opener = signed_in_opener(args.api_url)
     fhir = FhirClient(args.fhir_url)
     expected = import_data(DATA, fhir, dry_run=True)["resource_counts"]
 
@@ -40,9 +42,9 @@ def main():
         request = Request(
             args.api_url.rstrip("/") + path,
             data=json.dumps(body).encode() if body is not None else None,
-            headers={"Content-Type": "application/json"},
+            headers={"Content-Type": "application/json", "X-HealthOps-Request": "1"},
         )
-        with urlopen(request, timeout=120) as response:
+        with opener.open(request, timeout=120) as response:
             return json.load(response)
 
     patients = api("/api/v1/patients?source=hapi")

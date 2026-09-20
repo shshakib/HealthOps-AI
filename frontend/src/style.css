@@ -1823,3 +1823,116 @@ dialog::backdrop {
     grid-template-columns: 1fr;
   }
 }
+
+/* Local account and role controls. */
+.account-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 24px;
+  background: #102d3e;
+  color: white;
+  position: relative;
+  z-index: 20;
+}
+.account-bar > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.account-bar button {
+  background: transparent;
+  border: 1px solid #78939e;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.login-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: #edf3f4;
+  padding: 24px;
+}
+.login-card {
+  background: white;
+  border: 1px solid #d6e1e5;
+  border-radius: 16px;
+  padding: 36px;
+  width: min(100%, 460px);
+  box-shadow: 0 16px 48px #16324212;
+}
+.login-card h1 {
+  margin: 18px 0;
+}
+.login-card p {
+  margin: 16px 0;
+  line-height: 1.6;
+}
+.login-card .primary {
+  width: 100%;
+  justify-content: center;
+}
+.account-panel {
+  margin: 32px auto;
+  padding: 28px;
+  max-width: 1100px;
+}
+.account-panel p {
+  margin: 14px 0;
+}
+.user-row {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 14px;
+  border-bottom: 1px solid #d6e1e5;
+  padding: 20px 0;
+}
+.user-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.user-row .ack {
+  flex-direction: row;
+  align-items: center;
+}
+.account-events {
+  overflow: auto;
+}
+.account-events td,
+.account-events th {
+  padding: 12px;
+  text-align: left;
+}
+@media (max-width: 700px) {
+  .account-bar {
+    flex-direction: column;
+    align-items: start;
+    padding: 12px;
+  }
+  .account-panel {
+    margin: 12px;
+    padding: 16px;
+  }
+  .user-row label {
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 851px) {
+  .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+  .main {
+    margin-left: 0;
+    flex: 1;
+  }
+}

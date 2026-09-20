@@ -1,4 +1,4 @@
-from fastapi.testclient import TestClient
+from auth_support import TestClient
 
 from healthops.api import create_app
 

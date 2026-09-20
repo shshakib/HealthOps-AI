@@ -9,7 +9,7 @@ read synthetic patient records, compare selected trial criteria, show evidence a
 unknowns, then let a human record the next screening step.
 
 **Current capabilities:** a working dashboard, reproducible Synthea pipeline,
-real registry snapshots, human review, and optional Ollama/OpenAI/Claude/Gemini assistance.
+real registry snapshots, authenticated human review, role permissions, and optional Ollama/OpenAI/Claude/Gemini assistance.
 The verified local demo generated five patients in HAPI; a fresh checkout starts with
 an empty FHIR database and also offers bundled handcrafted fixtures. Three
 actual ClinicalTrials.gov snapshots are available offline, with partial rule drafts
@@ -39,6 +39,8 @@ flowchart TD
     S["Synthea generates synthetic FHIR files"] --> H["Validated import into HAPI FHIR<br/>Patient records stored in PostgreSQL"]
     F["Bundled handcrafted patient fixtures"] --> P["Select a patient, trial, and assessment date"]
     H --> P
+    I["Sign in: Viewer / Reviewer / Admin"] --> B["API checks session and permissions"]
+    B --> P
 
     T["ClinicalTrials.gov API"] --> V["Save dated study snapshot<br/>Source URL and checksum retained"]
     V --> D["Prepare a partial rule interpretation"]
@@ -80,9 +82,14 @@ With Docker Desktop's Linux engine running:
 docker compose up --build -d --wait --wait-timeout 600
 ```
 
-Open [the HealthOps dashboard](http://127.0.0.1:18000/) and
-[HAPI FHIR metadata](http://127.0.0.1:8080/fhir/metadata). PostgreSQL runs on the
-internal Docker network. Named volumes preserve FHIR records and review history.
+Create your first administrator (the command prompts for a password):
+
+```powershell
+docker compose exec healthops python -m healthops.auth admin
+```
+
+Open [the HealthOps dashboard](http://127.0.0.1:18000/) and sign in.
+HAPI FHIR and PostgreSQL run on the internal Docker network. Named volumes preserve FHIR records and review history.
 
 The dashboard provides patient selection, health records, trial-rule review,
 screening evidence, and a decision ledger. See [the dashboard guide](docs/dashboard.md).
@@ -90,7 +97,7 @@ screening evidence, and a decision ledger. See [the dashboard guide](docs/dashbo
 
 ```powershell
 docker compose exec -T healthops python scripts/check_stack.py
-docker compose exec -T healthops python scripts/demo.py
+docker compose exec healthops python scripts/demo.py
 docker compose down
 ```
 
@@ -112,6 +119,7 @@ cloud account, or API key is needed for the bundled-fixture workflow.
 ```powershell
 python -m venv .venv
 & '.\.venv\Scripts\python.exe' -m pip install -c requirements-dev.lock -e '.[dev]'
+& '.\.venv\Scripts\python.exe' -m healthops.auth admin
 & '.\.venv\Scripts\python.exe' -m healthops
 ```
 
@@ -121,7 +129,7 @@ The Swagger documentation UI loads
 Swagger assets from a CDN; the API itself operates without an external data service.
 Stop the server with Ctrl+C.
 
-If `.venv` is already installed, only the last command is needed. In this workspace,
+Create the first administrator once per database. For later starts, only the last command is needed. In this workspace,
 Python 3.11 was selected explicitly; other computers can use their installed Python.
 `requirements-dev.lock` pins the application and test dependencies used for the
 verified Python 3.11 setup; it is a pip constraints file, not a lock for build tools.
@@ -138,6 +146,9 @@ screenings and one smoke-test review to the local ledger.
 
 ## Try the human-review flow
 
+Sign in through the dashboard as a Reviewer or Admin, then open `/docs`.
+Keep `X-HealthOps-Request` set to `1` for mutations.
+
 1. Open `POST /api/v1/screenings`, select **Try it out**, and execute the default
    request (`demo-001`, `DEMO-T2D-001`, `2026-09-01`). Copy the returned `id`.
 2. Inspect the criteria, evidence references, source snapshot, and
@@ -146,7 +157,6 @@ screenings and one smoke-test review to the local ledger.
 
 ```json
 {
-  "reviewer": "Demo coordinator",
   "decision": "advance_for_screening",
   "reason": "Reviewed the fictional criteria and evidence; proceed to further screening.",
   "expected_revision": 0
@@ -176,18 +186,22 @@ review is recorded. Unknowns remain visible, even when a reviewer advances a cas
 - Versioned ClinicalTrials.gov snapshots with source links, retrieval dates, and offline access.
 - Sourced partial interpretations, separate approval/rejection, and conservative exclusion logic.
 
-**Boundaries:** the APIs are unauthenticated. Direct Python binds to `127.0.0.1`,
-and Compose publishes HTTP ports only to `127.0.0.1` on the host. Reviewer
-names are self-reported demo labels, not verified identities. The ledger is not
-tamper-proof. It supports bundled fixtures and the imported Synthea demo, with
-limited structural validation. Full FHIR profile validation is not implemented.
-Do not expose this milestone as a public patient-data service.
+**Login and permissions:** Viewer reads records and asks the assistant; Reviewer
+also runs screenings and records decisions; Admin also manages users and AI settings.
+See [the login guide](docs/authentication.md) for setup, the role matrix, session
+behavior, maintenance access, and tests. There are no default credentials.
+
+**Boundaries:** the service is a local synthetic-data prototype. The APIs require
+login, while `/health` and the login page are public. New review identities come
+from the session; earlier self-reported labels remain explicitly unverified.
+The ledger is not tamper-proof. Full FHIR profile validation, tenant isolation,
+enterprise SSO, and production deployment are not implemented.
 
 The [evidence assistant](docs/assistant.md) now explains saved findings and unknowns
-in the dashboard. **Model connection settings** supports Ollama, OpenAI, Claude,
+in the dashboard. Administrators can use **Model connection settings** for Ollama, OpenAI, Claude,
 and Gemini, with provider/model selection and server-session API keys. All use
 read-only tools; the default evidence-only mode works without a model. A real LLM still needs selection and live
-verification. Authentication, MLflow, and cloud deployment are **not implemented yet**.
+verification. MLflow and cloud deployment are **not implemented yet**.
 HAPI uses PostgreSQL; HealthOps retains SQLite for its
 review ledger until the separate application-database migration.
 

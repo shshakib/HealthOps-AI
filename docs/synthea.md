@@ -26,11 +26,12 @@ and [versioned release](https://github.com/synthetichealth/synthea/releases/tag/
 Run in the project directory with Docker Desktop and the existing Python venv:
 
 ```powershell
-docker compose up --build -d --wait --wait-timeout 600
+docker compose -f compose.yaml -f compose.fhir-dev.yaml up --build -d --wait --wait-timeout 600
 & '.\.venv\Scripts\python.exe' -m healthops.synthea generate
 & '.\.venv\Scripts\python.exe' -m healthops.synthea import --dry-run
 & '.\.venv\Scripts\python.exe' -m healthops.synthea import
 & '.\.venv\Scripts\python.exe' scripts/check_synthea.py
+docker compose -f compose.yaml up -d --wait --wait-timeout 600
 ```
 
 **This workspace already has generated and imported data.** Skip `generate` when
@@ -39,7 +40,9 @@ The generation command launches a temporary fourth container and removes it when
 finished. Only the three application services stay running. Initial builds need
 internet access; saved files can be reimported without contacting Synthea online.
 
-The host scripts use HAPI port 8080 and HealthOps port 18000. If customized, pass
+The maintenance override temporarily exposes unauthenticated HAPI on loopback 8080.
+The final command removes that port. HealthOps port 18000 requires login; the check
+script prompts for a Reviewer/Admin account created using the [login guide](authentication.md). If customized, pass
 `--fhir-url http://127.0.0.1:YOUR_PORT/fhir` to import/check and
 `--api-url http://127.0.0.1:YOUR_PORT` to the check script. Generation runs from the
 source checkout on the host, not inside the HealthOps application container.
@@ -98,7 +101,7 @@ error and never falls back to the handcrafted fixtures.
 
 `source=fixtures` remains the default for the original three-patient demo.
 `source=hapi` lists only records tagged by this importer. This tag identifies the
-demo dataset; it is not an authorization control. APIs remain local and unauthenticated.
+demo dataset; it is not an authorization control. HealthOps requires login and permissions; direct HAPI maintenance access bypasses those roles.
 
 ## Verified on 2026-09-13 (Toronto)
 
