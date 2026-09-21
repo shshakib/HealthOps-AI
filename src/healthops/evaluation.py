@@ -391,6 +391,8 @@ def markdown(report):
         "",
         f"Generated: {report['generated_at']}",
         f"Mode: **{report['mode']}** · Dataset: `{report['dataset_version']}`",
+        f"Assistant: `{report['assistant_version']}` · "
+        f"Provider/model: `{report['provider'] or 'none'}` / `{report['model'] or 'none'}`",
         "",
         f"Dataset SHA-256: `{report['dataset_sha256']}`",
         "",
@@ -403,10 +405,18 @@ def markdown(report):
             + " |"
             for name, m in report["metrics"].items()
         ],
-        f"| Simulated failure handling | {s['faults_passed']}/{s['faults_total']} |",
-        f"| API permission boundaries | {s['permissions_passed']}/{s['permissions_total']} |",
+        "| Simulated failure handling | "
+        + (f"{s['faults_passed']}/{s['faults_total']}" if s["faults_total"] else "Not run")
+        + " |",
+        "| API permission boundaries | "
+        + (
+            f"{s['permissions_passed']}/{s['permissions_total']}"
+            if s["permissions_total"]
+            else "Not run"
+        )
+        + " |",
         f"| Fallback answers | {s['fallback_count']}/{s['total']} |",
-        f"| P95 assistant time (excludes telemetry export) | {s['p95_latency_ms']} ms |",
+        f"| P95 assistant time (excludes root trace export) | {s['p95_latency_ms']} ms |",
         f"| Provider cost | {cost} |",
         f"| Model calls | {s['model_calls']} |",
         "",

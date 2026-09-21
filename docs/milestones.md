@@ -57,8 +57,9 @@ source and interpretation review, screening evidence, decisions, and saved histo
 The evidence assistant and LLM-unavailable fallback are implemented. An optional
 Ollama/OpenAI/Claude/Gemini agent selects evidence through bounded read-only tools;
 provider/model/key settings are available in the dashboard. Answers use the
-saved findings. Backend, provider-protocol stub, and browser tests pass. A real
-model still needs selection and live verification before this milestone is complete.
+saved findings. Backend, provider-protocol stub, and browser tests pass. GPT-5.4 mini
+passed 22 public synthetic regression cases using real provider calls; other
+providers remain unverified. See [the live evaluation](evaluation/live/README.md).
 See [the dashboard guide](dashboard.md) and [assistant guide](assistant.md).
 
 Add React screens for patient/trial selection, criterion evidence, review decisions,
@@ -79,8 +80,8 @@ Local accounts, server-enforced roles, user management, session revocation, and
 authenticated reviewer attribution are implemented. See [authentication](authentication.md).
 Local MLflow tracing and a versioned public regression report are implemented. See
 [evaluation](evaluation.md) for measured offline results and reproduction commands.
-Real-model verification, an independent held-out benchmark, and a recorded demo
-remain open; this milestone is not yet fully complete.
+GPT-5.4 mini has a measured live regression report. An independent held-out
+benchmark and a recorded demo remain open; this milestone is not yet fully complete.
 
 Add authenticated identities, server-enforced permissions, MLflow tracing,
 evaluation fixtures, error handling, and GitHub Actions checks.

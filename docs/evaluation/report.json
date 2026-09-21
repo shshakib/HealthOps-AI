@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-09-21T06:05:16.359789+00:00",
+  "generated_at": "2026-09-21T14:15:25.927487+00:00",
   "dataset_version": "healthops-eval-v1",
   "dataset_sha256": "835df867f518b548477d5e6126545cdcd272c818a692bddf37a5b9279d343eac",
-  "assistant_version": "evidence-assistant-v2",
+  "assistant_version": "evidence-assistant-v3",
   "mode": "offline",
   "provider": null,
   "model": null,
@@ -54,7 +54,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-5c55d84b282fd90ef73f2c1bdbdcbdb3",
+        "trace_id": "tr-0823c795a3a55789079be8a2e54a7d61",
         "recorded": true
       }
     },
@@ -85,7 +85,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-9e10c80c4b4da664bdc1803e0f0ca958",
+        "trace_id": "tr-0fa804b68390e81051471c47e8b70522",
         "recorded": true
       }
     },
@@ -116,7 +116,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-dc60ec3d11a802ff050a1eb1b86d0cb8",
+        "trace_id": "tr-c90b12e47762f08f78f2e8fbf8bb34b8",
         "recorded": true
       }
     },
@@ -151,7 +151,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-101a76f81c81e124241bcb058571f2bb",
+        "trace_id": "tr-c770f6c62c157b68e8f2a03918b893a2",
         "recorded": true
       }
     },
@@ -184,7 +184,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-f6293cfc714823fc34621c8a46492eb0",
+        "trace_id": "tr-fb4554d51921652aa65d39c375febf0b",
         "recorded": true
       }
     },
@@ -215,7 +215,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-b8df85329eb3be5e9acf3b5bda0a405f",
+        "trace_id": "tr-62ee1cc443080d08a5dad8bbc5e4e291",
         "recorded": true
       }
     },
@@ -250,7 +250,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-17163d564db537343633b19a7ecd535c",
+        "trace_id": "tr-0a977de3db816784d4f156976eae380a",
         "recorded": true
       }
     },
@@ -281,7 +281,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-6fbbcf99e4551f4b25a66188597ad9b4",
+        "trace_id": "tr-e34a6a32c49cceb47067118c189a429c",
         "recorded": true
       }
     },
@@ -312,7 +312,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-ca656be6169d5b5a7ab093ef4289b80b",
+        "trace_id": "tr-8ef7b53ba6449c10e54f3086950d8bf5",
         "recorded": true
       }
     },
@@ -343,7 +343,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-d25ce32db8c09c2c1393dd3e3d236147",
+        "trace_id": "tr-c5622ab0d28ff2e6913d2c86c3958cb5",
         "recorded": true
       }
     },
@@ -374,7 +374,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-1744b9f3b982e21febba5e6195982c5e",
+        "trace_id": "tr-321da585dd944b39f9d93fb7b69c87c2",
         "recorded": true
       }
     },
@@ -405,7 +405,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-6838246e60ebacf4dacfbca4fe320f04",
+        "trace_id": "tr-964df0baf6db191ccceb48d1bef4d75b",
         "recorded": true
       }
     },
@@ -436,7 +436,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-f077b08c91d89ccf0d6fab7519cdad3f",
+        "trace_id": "tr-92599727619d7d827836224281e14988",
         "recorded": true
       }
     },
@@ -467,7 +467,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-6f7b7f286d33db3e8883281795122b52",
+        "trace_id": "tr-dd8e191c93f48691c0994258e3c8bc9c",
         "recorded": true
       }
     },
@@ -498,7 +498,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-0e726d3a01e2f9f4dbdbd48410f50c01",
+        "trace_id": "tr-70a300f7bafc470161dbfdce8f241513",
         "recorded": true
       }
     },
@@ -529,7 +529,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-083ca9adf0d403a6bc7280d0f40cc45c",
+        "trace_id": "tr-1a81aabcd9c9c1a4f79470fe317ffce2",
         "recorded": true
       }
     },
@@ -560,7 +560,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-21d1dea0d13c8aff9a841d1f025dc229",
+        "trace_id": "tr-06155793dc977b7eca13809158fc7e6d",
         "recorded": true
       }
     },
@@ -591,7 +591,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-5cb8daca26123d99f1836ac0821ecbc6",
+        "trace_id": "tr-d72def15bd6754fee5f6ae39dc5e3f4f",
         "recorded": true
       }
     },
@@ -626,7 +626,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-6cc36837e5870dbe48278594d127baf1",
+        "trace_id": "tr-7b9d715dbd0cd79b4f16627011dbe25a",
         "recorded": true
       }
     },
@@ -661,7 +661,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-4789d37dd103820b35688a3d96b5252c",
+        "trace_id": "tr-e33a463b3ea4902bf7c879270d3def88",
         "recorded": true
       }
     },
@@ -696,7 +696,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-67c89ed6ea6410220cc1bbc296b422a3",
+        "trace_id": "tr-9d3e60e1d50069bde4e76f7a799d1586",
         "recorded": true
       }
     },
@@ -731,7 +731,7 @@
         "tokens": null
       },
       "monitoring": {
-        "trace_id": "tr-c76a6216bc98def6f16b6cc0c4a97c3a",
+        "trace_id": "tr-3da115c174cc9b2e4197f5e7db46697c",
         "recorded": true
       }
     }
@@ -880,5 +880,5 @@
     }
   },
   "passed": true,
-  "mlflow_run_id": "c30fe95df3ee4b1ebadb61b1686208b1"
+  "mlflow_run_id": "77cda765451d494a970a8504438d26dd"
 }

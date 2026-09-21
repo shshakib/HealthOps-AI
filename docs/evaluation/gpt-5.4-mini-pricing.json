@@ -1,0 +1,9 @@
+{
+  "provider": "openai",
+  "model": "gpt-5.4-mini",
+  "source": "https://developers.openai.com/api/docs/models/gpt-5.4-mini",
+  "checked_on": "2026-09-21",
+  "input_per_million_usd": 0.75,
+  "output_per_million_usd": 4.5,
+  "cached_input_per_million_usd": 0.075
+}

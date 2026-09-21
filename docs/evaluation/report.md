@@ -1,7 +1,8 @@
 # HealthOps evaluation report
 
-Generated: 2026-09-21T06:05:16.359789+00:00
+Generated: 2026-09-21T14:15:25.927487+00:00
 Mode: **offline** · Dataset: `healthops-eval-v1`
+Assistant: `evidence-assistant-v3` · Provider/model: `none` / `none`
 
 Dataset SHA-256: `835df867f518b548477d5e6126545cdcd272c818a692bddf37a5b9279d343eac`
 
@@ -19,7 +20,7 @@ Dataset SHA-256: `835df867f518b548477d5e6126545cdcd272c818a692bddf37a5b9279d343e
 | Simulated failure handling | 6/6 |
 | API permission boundaries | 15/15 |
 | Fallback answers | 22/22 |
-| P95 assistant time (excludes telemetry export) | 0.0 ms |
+| P95 assistant time (excludes root trace export) | 0.0 ms |
 | Provider cost | $0 (no provider calls) |
 | Model calls | 0 |
 

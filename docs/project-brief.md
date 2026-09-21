@@ -36,11 +36,12 @@ Docker Compose now supplies HealthOps, HAPI FHIR, and PostgreSQL, plus an on-dem
 Synthea generator. Generation/import and the HealthOps patient-data adapter are
 implemented, with a HAPI-backed fictional screening and human-review flow.
 Three dated ClinicalTrials.gov snapshots and a separate interpretation-approval
-workflow are also implemented; actual drafts await human review. Later milestones
-add authenticated access and live model evaluation. The React review dashboard is now
+workflow are also implemented; actual drafts await human review. Authenticated
+access, role permissions, and local MLflow monitoring are implemented. The React review dashboard is now
 implemented for patients, trial interpretations, evidence, decisions, and history.
 An evidence assistant is implemented with Ollama/OpenAI/Claude/Gemini tool adapters and
-offline fallback. Live model selection/verification remain open; see [the guide](assistant.md).
+offline fallback. GPT-5.4 mini passed a [22-case live regression run](evaluation/live/README.md);
+other providers and an independent held-out benchmark remain unverified.
 Unsupported trial criteria remain visible as unknown or requiring manual review.
 AI-generated rule interpretations require human approval before activation.
 

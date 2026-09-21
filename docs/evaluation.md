@@ -6,6 +6,10 @@ six simulated provider/tool failures, and 15 API permission checks**. The matchi
 These public, curated synthetic regression cases are not a held-out benchmark or
 clinical validation. Offline results do not measure real model quality.
 
+The [live GPT-5.4 mini report](evaluation/live/README.md) adds a real-provider run:
+22/22 public regression cases passed after a routing clarification. It includes
+the original 2/3 result, the successful 3/3 retest, and token/cost measurements.
+
 ## What is checked
 
 The versioned dataset is `src/healthops/evaluation_cases.json`. It covers met,
@@ -102,8 +106,9 @@ reports those tokens. Provider and model must match before any calls are made.
 Estimates require complete usage and applicable rates; failed calls can still be
 billable. This estimate is not a provider invoice.
 
-**Current limitation:** no real provider/model was configured for the published
-offline baseline. Real-model quality, latency, and cost remain unmeasured.
+**Current limitation:** the offline baseline makes no model calls. A separate
+GPT-5.4 mini run measures performance on the public regression set; other providers
+and an independent held-out set remain unverified.
 There is no retrieval index, retrieval precision score, LLM judge, or claim of
 clinical correctness. A separate unseen dataset and domain review are future work.
 

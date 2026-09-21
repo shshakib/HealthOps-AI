@@ -34,7 +34,8 @@ Each request is independent. There is no conversational memory, new screening, o
 assistant transcript stored in the review ledger. Responses carry evidence/rule
 hashes, assessment ID, review revision, actual duration, and successful tool-call
 metadata. [Local MLflow traces and regression evaluation](evaluation.md) are implemented.
-Real-provider verification and an independent held-out benchmark remain future work.
+GPT-5.4 mini has a [published live regression run](evaluation/live/README.md).
+Other providers and an independent held-out benchmark remain unverified.
 
 ## Choose a provider, model, and API key
 
@@ -157,5 +158,5 @@ npm run test:ui
 ```
 
 Browser tests isolate settings from the shell, use fake keys with model bypass,
-and use their own temporary review ledger. Live model selection and quality evaluation remain
-open before claiming the LLM workflow is fully verified.
+and use their own temporary review ledger. The separate live GPT-5.4 mini run passed
+22 public synthetic regression cases. It is not a held-out or clinical benchmark.

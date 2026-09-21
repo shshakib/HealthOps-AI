@@ -1,5 +1,21 @@
 # HealthOps checkpoint
 
+## Live model checkpoint — September 21, 2026
+
+OpenAI `gpt-5.4-mini` is configured locally through the ignored `.env` file.
+Assistant v3 clarifies findings summaries versus human-review next steps. The
+original live smoke test passed 2/3; the same three cases now pass 3/3. One full
+run passed 22/22 public synthetic regression cases, with zero fallback answers,
+49 model calls, P95 component latency of 3.512 seconds, and estimated provider
+cost of $0.020067. The retest plus full run cost an estimated $0.02295075.
+All 22 traces were retrieved from MLflow storage. Reports preserve both the
+original failure and the successful runs; see [live evaluation](evaluation/live/README.md).
+The 59 relevant automated tests and all offline regression/fault/permission checks
+passed. Docker serves the updated assistant, and live data remains five Synthea
+patients, eight saved assessments, and three registry studies. These are public
+regression results, not an unseen benchmark or clinical validation. Earlier
+checkpoints below are historical.
+
 ## Latest checkpoint — September 21, 2026
 
 Local MLflow monitoring and a versioned evaluation runner are implemented.

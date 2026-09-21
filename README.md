@@ -201,8 +201,11 @@ enterprise SSO, and production deployment are not implemented.
 The [evidence assistant](docs/assistant.md) now explains saved findings and unknowns
 in the dashboard. Administrators can use **Model connection settings** for Ollama, OpenAI, Claude,
 and Gemini, with provider/model selection and server-session API keys. All use
-read-only tools; the default evidence-only mode works without a model. A real LLM still needs selection and live
-verification. [MLflow monitoring and evaluation](docs/evaluation.md) are implemented;
+read-only tools; the default evidence-only mode works without a model.
+GPT-5.4 mini passed **22/22 public synthetic regression cases** in a real-provider
+run. See [the live evaluation and routing fix](docs/evaluation/live/README.md) for
+the original failure, retest, costs, and limitations. Other providers still need live verification.
+[MLflow monitoring and evaluation](docs/evaluation.md) are implemented;
 the [measured offline report](docs/evaluation/report.md) separates deterministic
 checks from model quality. Cloud deployment remains future work.
 HAPI uses PostgreSQL; HealthOps retains SQLite for its

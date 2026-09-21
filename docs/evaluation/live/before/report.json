@@ -1,0 +1,226 @@
+{
+  "generated_at": "2026-09-21T14:08:09.427892+00:00",
+  "dataset_version": "healthops-eval-v1",
+  "dataset_sha256": "835df867f518b548477d5e6126545cdcd272c818a692bddf37a5b9279d343eac",
+  "assistant_version": "evidence-assistant-v2",
+  "mode": "live",
+  "provider": "openai",
+  "model": "gpt-5.4-mini",
+  "limitations": "Public curated synthetic regression cases, not clinical validation or an independent held-out benchmark. Evidence-only results do not measure LLM quality. Fault scenarios use a scripted test double. No retrieval index or LLM judge is used.",
+  "summary": {
+    "passed": 2,
+    "total": 3,
+    "faults_passed": 0,
+    "faults_total": 0,
+    "permissions_passed": 0,
+    "permissions_total": 0,
+    "fallback_count": 0,
+    "model_calls": 8,
+    "p95_latency_ms": 5730.025,
+    "usage_complete": true,
+    "reported_tokens": {
+      "input_tokens": 2987,
+      "output_tokens": 119,
+      "total_tokens": 3106,
+      "cached_input_tokens": 0,
+      "cache_creation_input_tokens": 0
+    },
+    "estimated_cost_usd": 0.00277575,
+    "cost_note": "Estimate from supplied dated rates; excludes taxes and provider adjustments."
+  },
+  "cases": [
+    {
+      "id": "demo-001-summary",
+      "question": "Explain this screening",
+      "checks": {
+        "tool_selection": true,
+        "criterion_statuses": true,
+        "topic": false,
+        "citation_selection": false,
+        "evidence_binding": true,
+        "no_model_fallback": true,
+        "offline_no_tools": null,
+        "no_record_mutation": true
+      },
+      "passed": false,
+      "mode": "model_assisted",
+      "topic": "workflow",
+      "fallback_reason": null,
+      "citation_ids": [],
+      "latency_ms": 5730.025,
+      "tool_trace": [
+        {
+          "tool": "get_screening_summary",
+          "duration_ms": 27,
+          "status": "ok",
+          "criterion_id": null
+        },
+        {
+          "tool": "get_review_workflow",
+          "duration_ms": 18,
+          "status": "ok",
+          "criterion_id": null
+        }
+      ],
+      "usage": {
+        "model_calls": 3,
+        "reported_calls": 3,
+        "complete": true,
+        "tokens": {
+          "input_tokens": 1154,
+          "output_tokens": 45,
+          "total_tokens": 1199,
+          "cached_input_tokens": 0,
+          "cache_creation_input_tokens": 0
+        }
+      },
+      "monitoring": {
+        "trace_id": "tr-1f717bc3091526d805e141777d45a797",
+        "recorded": true
+      }
+    },
+    {
+      "id": "demo-001-missing",
+      "question": "What evidence is missing?",
+      "checks": {
+        "tool_selection": true,
+        "criterion_statuses": true,
+        "topic": true,
+        "citation_selection": true,
+        "evidence_binding": true,
+        "no_model_fallback": true,
+        "offline_no_tools": null,
+        "no_record_mutation": true
+      },
+      "passed": true,
+      "mode": "model_assisted",
+      "topic": "missing",
+      "fallback_reason": null,
+      "citation_ids": [],
+      "latency_ms": 3055.427,
+      "tool_trace": [
+        {
+          "tool": "get_screening_summary",
+          "duration_ms": 20,
+          "status": "ok",
+          "criterion_id": null
+        }
+      ],
+      "usage": {
+        "model_calls": 2,
+        "reported_calls": 2,
+        "complete": true,
+        "tokens": {
+          "input_tokens": 667,
+          "output_tokens": 29,
+          "total_tokens": 696,
+          "cached_input_tokens": 0,
+          "cache_creation_input_tokens": 0
+        }
+      },
+      "monitoring": {
+        "trace_id": "tr-878ffea01f6ccb7198291abaed2c3c2e",
+        "recorded": true
+      }
+    },
+    {
+      "id": "demo-001-workflow",
+      "question": "What can a reviewer do next?",
+      "checks": {
+        "tool_selection": true,
+        "criterion_statuses": true,
+        "topic": true,
+        "citation_selection": true,
+        "evidence_binding": true,
+        "no_model_fallback": true,
+        "offline_no_tools": null,
+        "no_record_mutation": true
+      },
+      "passed": true,
+      "mode": "model_assisted",
+      "topic": "workflow",
+      "fallback_reason": null,
+      "citation_ids": [],
+      "latency_ms": 2988.743,
+      "tool_trace": [
+        {
+          "tool": "get_screening_summary",
+          "duration_ms": 19,
+          "status": "ok",
+          "criterion_id": null
+        },
+        {
+          "tool": "get_review_workflow",
+          "duration_ms": 27,
+          "status": "ok",
+          "criterion_id": null
+        }
+      ],
+      "usage": {
+        "model_calls": 3,
+        "reported_calls": 3,
+        "complete": true,
+        "tokens": {
+          "input_tokens": 1166,
+          "output_tokens": 45,
+          "total_tokens": 1211,
+          "cached_input_tokens": 0,
+          "cache_creation_input_tokens": 0
+        }
+      },
+      "monitoring": {
+        "trace_id": "tr-6125ea11d7e5de4ca1cd73bf8aee737a",
+        "recorded": true
+      }
+    }
+  ],
+  "faults": [],
+  "permissions": [],
+  "metrics": {
+    "tool_selection": {
+      "passed": 3,
+      "total": 3
+    },
+    "criterion_statuses": {
+      "passed": 3,
+      "total": 3
+    },
+    "topic": {
+      "passed": 2,
+      "total": 3
+    },
+    "citation_selection": {
+      "passed": 2,
+      "total": 3
+    },
+    "evidence_binding": {
+      "passed": 3,
+      "total": 3
+    },
+    "no_model_fallback": {
+      "passed": 3,
+      "total": 3
+    },
+    "offline_no_tools": {
+      "passed": 0,
+      "total": 0
+    },
+    "no_record_mutation": {
+      "passed": 3,
+      "total": 3
+    }
+  },
+  "pricing": {
+    "provider": "openai",
+    "model": "gpt-5.4-mini",
+    "source": "https://developers.openai.com/api/docs/models/gpt-5.4-mini",
+    "checked_on": "2026-09-21",
+    "input_per_million_usd": 0.75,
+    "output_per_million_usd": 4.5,
+    "cached_input_per_million_usd": 0.075,
+    "cache_creation_per_million_usd": null
+  },
+  "passed": false,
+  "mlflow_run_id": "39e462592d444cef8b5dff9ab522ffc8",
+  "report_id": "a060a3f1-dd4d-4619-a339-e026545132b1"
+}
