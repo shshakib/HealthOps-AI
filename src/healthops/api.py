@@ -3,8 +3,10 @@
 import os
 from datetime import date
 from pathlib import Path
+from threading import Lock
 from typing import Literal
 from urllib.parse import urlsplit
+from uuid import uuid4
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.exceptions import RequestValidationError
@@ -16,10 +18,14 @@ from healthops import __version__
 from healthops.assistant import AssistantRequest, EvidenceAssistant
 from healthops.auth import install_auth
 from healthops.demo_data import DEMO_AS_OF, PATIENTS, SYNTHEA_TRIAL, TRIAL, get_patient
+from healthops.evaluation import Pricing
+from healthops.evaluation import run as evaluate
+from healthops.evaluation import save as save_evaluation
 from healthops.fhir import FhirClient, FhirError
 from healthops.providers import ProviderSettings, ProviderUpdate
 from healthops.screening import screen_patient
 from healthops.store import ReviewStore
+from healthops.telemetry import status as monitoring_status
 from healthops.trial_rules import (
     RuleProposal,
     RuleReview,
@@ -37,6 +43,12 @@ class ScreeningRequest(BaseModel):
     as_of: date = date.fromisoformat(DEMO_AS_OF)
     source: Literal["fixtures", "hapi"] = "fixtures"
     rule_set_id: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
+
+
+class EvaluationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    limit: int = Field(default=3, ge=1, le=5)
+    pricing: Pricing | None = None
 
 
 class ReviewRequest(BaseModel):
@@ -88,6 +100,33 @@ def create_app(
     )
 
     install_auth(app, store.path)
+    evaluation_lock = Lock()
+
+    @app.post("/api/v1/admin/evaluations")
+    def evaluate_live(request: EvaluationRequest):
+        if not settings.public()["model_configured"]:
+            raise HTTPException(409, "Configure a model and its key in the dashboard first.")
+        client = settings.client()
+        if request.pricing and (request.pricing.provider, request.pricing.model) != (
+            getattr(client, "provider", None),
+            client.model,
+        ):
+            raise HTTPException(422, "Pricing must match the selected provider and model.")
+        if not evaluation_lock.acquire(blocking=False):
+            raise HTTPException(409, "An evaluation is already running.")
+        try:
+            report = evaluate(
+                "live", client, request.limit, include_permissions=False, pricing=request.pricing
+            )
+            report["report_id"] = str(uuid4())
+            save_evaluation(report, store.path.parent / "evaluations" / report["report_id"])
+            return report
+        finally:
+            evaluation_lock.release()
+
+    @app.get("/api/v1/admin/monitoring")
+    def monitoring():
+        return monitoring_status()
 
     @app.get("/health")
     def health() -> dict:

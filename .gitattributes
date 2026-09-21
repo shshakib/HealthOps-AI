@@ -4,3 +4,5 @@
 *.zip binary
 # Raw registry responses are hashed byte-for-byte; never normalize their bytes.
 data/clinicaltrials/**/study.json -text
+# Preserve the published evaluation dataset's byte-for-byte fingerprint across platforms.
+src/healthops/evaluation_cases.json -text

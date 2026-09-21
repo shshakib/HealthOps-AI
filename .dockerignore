@@ -22,3 +22,6 @@
 !frontend/vite.config.js
 !frontend/src/
 !frontend/src/**
+
+!requirements-observability.lock
+!src/healthops/evaluation_cases.json

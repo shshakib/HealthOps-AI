@@ -15,11 +15,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     HEALTHOPS_DB_PATH=/data/healthops.sqlite3
 
 WORKDIR /app
-COPY pyproject.toml README.md requirements-dev.lock ./
+COPY pyproject.toml README.md requirements-dev.lock requirements-observability.lock ./
 COPY src/ ./src/
 COPY --from=dashboard /workspace/src/healthops/static/ ./src/healthops/static/
 COPY data/clinicaltrials/ /app/data/clinicaltrials/
-RUN pip install --no-cache-dir -c requirements-dev.lock . \
+RUN pip install --no-cache-dir -c requirements-observability.lock ".[observability]" \
     && groupadd --gid 10001 healthops \
     && useradd --uid 10001 --gid healthops --no-create-home healthops \
     && mkdir -p /data \

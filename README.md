@@ -9,7 +9,8 @@ read synthetic patient records, compare selected trial criteria, show evidence a
 unknowns, then let a human record the next screening step.
 
 **Current capabilities:** a working dashboard, reproducible Synthea pipeline,
-real registry snapshots, authenticated human review, role permissions, and optional Ollama/OpenAI/Claude/Gemini assistance.
+real registry snapshots, authenticated human review, role permissions, local MLflow
+tracing, regression evaluation, and optional Ollama/OpenAI/Claude/Gemini assistance.
 The verified local demo generated five patients in HAPI; a fresh checkout starts with
 an empty FHIR database and also offers bundled handcrafted fixtures. Three
 actual ClinicalTrials.gov snapshots are available offline, with partial rule drafts
@@ -201,7 +202,9 @@ The [evidence assistant](docs/assistant.md) now explains saved findings and unkn
 in the dashboard. Administrators can use **Model connection settings** for Ollama, OpenAI, Claude,
 and Gemini, with provider/model selection and server-session API keys. All use
 read-only tools; the default evidence-only mode works without a model. A real LLM still needs selection and live
-verification. MLflow and cloud deployment are **not implemented yet**.
+verification. [MLflow monitoring and evaluation](docs/evaluation.md) are implemented;
+the [measured offline report](docs/evaluation/report.md) separates deterministic
+checks from model quality. Cloud deployment remains future work.
 HAPI uses PostgreSQL; HealthOps retains SQLite for its
 review ledger until the separate application-database migration.
 

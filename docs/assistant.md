@@ -20,8 +20,8 @@ natural-language questions and select relevant criteria. It uses:
 
 Tools are bound to the assessment loaded by the API. They cannot accept a different
 patient ID, execute SQL, browse URLs, change findings, approve rules, or submit reviews.
-No write tools are registered. This scope boundary does not replace authentication,
-which remains a later milestone for the entire API.
+No write tools are registered. Session authentication and server-enforced roles
+also protect these endpoints; see [authentication](authentication.md).
 
 The model selects a response topic and criterion IDs. The server validates the IDs
 and assembles the response from the saved findings. Free-form model medical claims
@@ -33,7 +33,8 @@ assistant, not a general medical chatbot or a model that decides eligibility.
 Each request is independent. There is no conversational memory, new screening, or
 assistant transcript stored in the review ledger. Responses carry evidence/rule
 hashes, assessment ID, review revision, actual duration, and successful tool-call
-metadata. MLflow, persisted traces, and a held-out model-quality evaluation are future work.
+metadata. [Local MLflow traces and regression evaluation](evaluation.md) are implemented.
+Real-provider verification and an independent held-out benchmark remain future work.
 
 ## Choose a provider, model, and API key
 

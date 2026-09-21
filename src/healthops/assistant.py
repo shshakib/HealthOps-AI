@@ -10,6 +10,8 @@ from urllib.request import ProxyHandler, Request, build_opener
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from healthops.telemetry import Usage, normalize_usage, span
+
 VERSION = "evidence-assistant-v2"
 QUESTIONS = {
     "Explain this screening": "summary",
@@ -125,7 +127,8 @@ class OllamaClient:
                 raw = response.read(262145)
                 if len(raw) > 262144:
                     raise ModelFailure("invalid_model_response")
-                return json.loads(raw)
+                data = json.loads(raw)
+                return {**data, "usage": normalize_usage("ollama", data)}
         except ModelFailure:
             raise
         except Exception as exc:
@@ -181,7 +184,8 @@ class EvidenceAssistant:
             return {"workflow": WORKFLOW}
         raise ModelFailure("tool_not_allowed")
 
-    def select(self, item, question, trace, deadline):
+    def select(self, item, question, trace, deadline, usage=None):
+        usage = usage if usage is not None else Usage()
         messages = [
             {
                 "role": "system",
@@ -207,7 +211,20 @@ class EvidenceAssistant:
             remaining = deadline - monotonic()
             if remaining <= 0:
                 raise ModelFailure("model_timeout")
-            response = self.model.chat(messages, remaining, final=turn == 3)
+            usage.calls += 1
+            with span("model_call", "LLM", {"round": turn + 1}) as model_span:
+                response = self.model.chat(messages, remaining, final=turn == 3)
+                tokens = response.get("usage")
+                usage.add(tokens)
+                if tokens:
+                    model_span.attributes(
+                        {
+                            "mlflow.chat.tokenUsage": {
+                                k: tokens[k]
+                                for k in ("input_tokens", "output_tokens", "total_tokens")
+                            }
+                        }
+                    )
             if monotonic() > deadline:
                 raise ModelFailure("model_timeout")
             message = response.get("message", {})
@@ -233,7 +250,21 @@ class EvidenceAssistant:
                     if not trace and name != "get_screening_summary":
                         raise ModelFailure("summary_required")
                     started = monotonic()
-                    result = self.read_tool(item, name, args)
+                    with span("evidence_tool", "TOOL") as tool_span:
+                        # Do not log untrusted names, arguments, source text, or results.
+                        tool_span.attributes(
+                            {
+                                "tool": name
+                                if name
+                                in {
+                                    "get_screening_summary",
+                                    "get_criterion_evidence",
+                                    "get_review_workflow",
+                                }
+                                else "rejected_tool"
+                            }
+                        )
+                        result = self.read_tool(item, name, args)
                     trace.append(
                         {
                             "tool": name,
@@ -279,12 +310,33 @@ class EvidenceAssistant:
         raise ModelFailure("tool_budget_exceeded")
 
     def answer(self, item, request):
+        with span(
+            "evidence_assistant",
+            attributes={
+                "question_length": len(request.question),
+                "use_model": request.use_model,
+                "assistant_version": VERSION,
+            },
+        ) as root:
+            result = self._answer(item, request)
+            root.outputs({k: result[k] for k in ("topic", "mode", "fallback_reason", "latency_ms")})
+            root.attributes(
+                {
+                    "model_calls": result["usage"]["model_calls"],
+                    "citation_count": len(result["citations"]),
+                }
+            )
+        result["monitoring"] = {"trace_id": root.trace_id, "recorded": root.recorded}
+        return result
+
+    def _answer(self, item, request):
+        usage = Usage()
         started = monotonic()
         trace, selection = [], None
         mode, fallback_reason = "fallback", "model_not_configured"
         if request.use_model and self.model.model:
             try:
-                selection = self.select(item, request.question, trace, started + 40)
+                selection = self.select(item, request.question, trace, started + 40, usage)
                 mode, fallback_reason = "model_assisted", None
             except ModelFailure as exc:
                 fallback_reason = str(exc)
@@ -358,7 +410,8 @@ class EvidenceAssistant:
             "rules_hash": item["rules_hash"],
             "review_revision": item["revision"],
             "tool_trace": trace,
-            "latency_ms": round((monotonic() - started) * 1000),
+            "usage": usage.public(),
+            "latency_ms": round((monotonic() - started) * 1000, 3),
             "version": VERSION,
             "suggested_questions": list(QUESTIONS),
         }

@@ -77,7 +77,10 @@ Done when:
 
 Local accounts, server-enforced roles, user management, session revocation, and
 authenticated reviewer attribution are implemented. See [authentication](authentication.md).
-MLflow and a reserved evaluation report remain separate work.
+Local MLflow tracing and a versioned public regression report are implemented. See
+[evaluation](evaluation.md) for measured offline results and reproduction commands.
+Real-model verification, an independent held-out benchmark, and a recorded demo
+remain open; this milestone is not yet fully complete.
 
 Add authenticated identities, server-enforced permissions, MLflow tracing,
 evaluation fixtures, error handling, and GitHub Actions checks.

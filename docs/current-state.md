@@ -1,5 +1,23 @@
 # HealthOps checkpoint
 
+## Latest checkpoint — September 21, 2026
+
+Local MLflow monitoring and a versioned evaluation runner are implemented.
+The public offline suite covers 22 answer cases, six simulated faults, and 15
+API permission boundaries. CI requires this regression suite and trace capture.
+See [evaluation](evaluation.md) and the [measured report](evaluation/report.md).
+The optional Compose monitoring profile serves MLflow at `127.0.0.1:5000`;
+HealthOps remains at `127.0.0.1:18000`. Traces exclude patient text and credentials.
+An admin-only endpoint can run a bounded evaluation with the dashboard's selected
+model. No model was configured for this checkpoint, so real-provider quality,
+latency, and cost still require a live run. Earlier checkpoints below are historical.
+Verification: 142 Python tests passed; all nine browser scenarios passed using
+isolated fixtures. The offline report passed 22/22 answers, 6/6 simulated faults,
+and 15/15 permission checks. Gitleaks found no secrets in the publication export.
+The rebuilt Docker services are healthy. A dashboard API trace was retrieved from
+the persisted MLflow database, and the live ledger still has five Synthea patients,
+eight assessments, and three registry studies.
+
 ## Latest checkpoint — September 20, 2026
 
 Local accounts and session authentication now protect the dashboard and API.

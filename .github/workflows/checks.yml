@@ -22,6 +22,7 @@ jobs:
     env:
       HEALTHOPS_UI_FIXTURES: '1'
       HEALTHOPS_AI_PROVIDER: offline
+      MLFLOW_DISABLE_TELEMETRY: 'true'
       OPENAI_API_KEY: ''
       ANTHROPIC_API_KEY: ''
       GEMINI_API_KEY: ''
@@ -41,12 +42,14 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m venv .venv
-          .venv/bin/python -m pip install -c requirements-dev.lock -e '.[dev]'
+          .venv/bin/python -m pip install -c requirements-observability.lock -e '.[dev,observability]'
       - name: Lint and test Python
         run: |
           .venv/bin/python -m ruff check .
           .venv/bin/python -m ruff format --check .
           .venv/bin/python -m pytest -q
+      - name: Offline evaluation regression (no provider calls)
+        run: .venv/bin/python -m healthops.evaluation --trace --output .local/evaluation
       - name: Install, check, and build dashboard
         working-directory: frontend
         run: |

@@ -12,6 +12,7 @@ from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_ope
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
 from healthops.assistant import TOOLS, ModelFailure, OllamaClient, Selection
+from healthops.telemetry import normalize_usage
 
 Provider = Literal["offline", "ollama", "openai", "anthropic", "gemini"]
 KEY_ENV = {"openai": "OPENAI_API_KEY", "anthropic": "ANTHROPIC_API_KEY", "gemini": "GEMINI_API_KEY"}
@@ -208,7 +209,10 @@ class CloudClient:
             for c in part.get("content", [])
             if c["type"] == "output_text"
         )
-        return {"message": {"content": content, "tool_calls": calls, "provider_output": output}}
+        return {
+            "message": {"content": content, "tool_calls": calls, "provider_output": output},
+            "usage": normalize_usage("openai", data),
+        }
 
     def _anthropic(self, messages, remaining, final):
         history = []
@@ -265,7 +269,8 @@ class CloudClient:
                 "content": "".join(p["text"] for p in output if p["type"] == "text"),
                 "tool_calls": calls,
                 "provider_output": output,
-            }
+            },
+            "usage": normalize_usage(self.provider, data),
         }
 
     def _gemini(self, messages, remaining, final):
@@ -337,5 +342,6 @@ class CloudClient:
                 "content": "".join(p.get("text", "") for p in parts if not p.get("thought")),
                 "tool_calls": calls,
                 "provider_output": output,
-            }
+            },
+            "usage": normalize_usage(self.provider, data),
         }
