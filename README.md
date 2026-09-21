@@ -2,7 +2,7 @@
 
 [![Checks](https://github.com/shshakib/healthops-ai/actions/workflows/checks.yml/badge.svg)](https://github.com/shshakib/healthops-ai/actions/workflows/checks.yml)
 
-**v0.1.0 · Local prototype**
+**v0.2.0 · Local portfolio preview**
 
 A clinical-trial prescreening workbench portfolio project. The workflow is:
 read synthetic patient records, compare selected trial criteria, show evidence and
@@ -22,6 +22,15 @@ Original code is licensed under [MIT](LICENSE). See [third-party notices](THIRD_
 for public registry records and upstream dependencies.
 
 ## Interface preview
+
+[Two-minute captioned demo](https://github.com/shshakib/healthops-ai/releases/download/v0.2.0/healthops-demo.webm)
+· [Walkthrough](docs/demo/walkthrough.md)
+· [Fresh evaluation: 23/24 first pass, preserved failures](docs/evaluation/fresh/README.md)
+
+![HealthOps saved assessment with evidence and a clearly labeled automated synthetic-data demo](docs/images/review-workbench-v0.2.png)
+
+*September 21, 2026: isolated fixture workspace. The recording shows evidence-only
+assistance and a simulated review; actual OpenAI results are in the linked reports.*
 
 ![HealthOps dashboard showing synthetic patient selection, health-record counts, and a trial-screening form](docs/images/patient-screening-dashboard.png)
 

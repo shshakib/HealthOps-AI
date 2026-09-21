@@ -81,7 +81,11 @@ authenticated reviewer attribution are implemented. See [authentication](authent
 Local MLflow tracing and a versioned public regression report are implemented. See
 [evaluation](evaluation.md) for measured offline results and reproduction commands.
 GPT-5.4 mini has a measured live regression report. An independent held-out
-benchmark and a recorded demo remain open; this milestone is not yet fully complete.
+benchmark remains open; this milestone is not yet fully complete. A
+[recorded demo](demo/walkthrough.md) and [fresh first-pass evaluation](evaluation/fresh/README.md)
+are now available. The latter passed 23/24 and documents safe routing failures;
+it is not independently blinded validation. Final manual product acceptance and
+actual registry interpretation approvals remain human tasks.
 
 Add authenticated identities, server-enforced permissions, MLflow tracing,
 evaluation fixtures, error handling, and GitHub Actions checks.

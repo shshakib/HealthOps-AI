@@ -1,5 +1,6 @@
 import copy
 import json
+from pathlib import Path
 
 import pytest
 from auth_support import TestClient
@@ -18,6 +19,34 @@ from healthops.evaluation import (
     tool_response,
 )
 from healthops.telemetry import normalize_usage
+
+
+def test_fresh_profiles_have_predeclared_statuses_and_new_questions():
+    import hashlib
+
+    path = Path("data/evaluation/fresh-v1.json")
+    raw = path.read_bytes()
+    dataset = json.loads(raw)
+    protocol = json.loads(Path("docs/evaluation/fresh/protocol.json").read_text(encoding="utf-8"))
+    assert hashlib.sha256(raw).hexdigest() == protocol["dataset_sha256"]
+    assert len(dataset["profiles"]) == 6 and len(dataset["cases"]) == 24
+    old = {c["question"] for c in json.loads(DATASET.read_bytes())["cases"]}
+    assert not old.intersection(c["question"] for c in dataset["cases"])
+    original = copy.deepcopy(dataset["profiles"])
+    for case in dataset["cases"]:
+        item = fixture(case, dataset["as_of"], dataset["profiles"])
+        assert [c["status"] for c in item["criteria"]] == case["expected_statuses"]
+        assert item["patient_id"] == case["patient"]
+    assert dataset["profiles"] == original
+
+
+def test_custom_dataset_runs_all_fresh_cases_offline(monkeypatch):
+    monkeypatch.delenv("HEALTHOPS_TRACING", raising=False)
+    report = run(dataset_path="data/evaluation/fresh-v1.json", include_permissions=False)
+    assert report["passed"]
+    assert report["summary"]["total"] == 24
+    assert report["dataset_version"] == "healthops-fresh-v1"
+    assert report["summary"]["model_calls"] == 0
 
 
 def test_versioned_cases_and_simulated_faults_pass_offline(monkeypatch):

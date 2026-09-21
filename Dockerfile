@@ -19,6 +19,7 @@ COPY pyproject.toml README.md requirements-dev.lock requirements-observability.l
 COPY src/ ./src/
 COPY --from=dashboard /workspace/src/healthops/static/ ./src/healthops/static/
 COPY data/clinicaltrials/ /app/data/clinicaltrials/
+COPY data/evaluation/ /app/data/evaluation/
 RUN pip install --no-cache-dir -c requirements-observability.lock ".[observability]" \
     && groupadd --gid 10001 healthops \
     && useradd --uid 10001 --gid healthops --no-create-home healthops \

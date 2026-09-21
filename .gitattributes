@@ -6,3 +6,4 @@
 data/clinicaltrials/**/study.json -text
 # Preserve the published evaluation dataset's byte-for-byte fingerprint across platforms.
 src/healthops/evaluation_cases.json -text
+data/evaluation/*.json -text

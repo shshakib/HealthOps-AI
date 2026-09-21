@@ -67,8 +67,12 @@ def apply_pricing(report, pricing):
     return report
 
 
-def fixture(case, as_of):
-    bundle = get_patient(case["patient"])
+def fixture(case, as_of, profiles=None):
+    bundle = (
+        copy.deepcopy(profiles[case["patient"]])
+        if profiles is not None and case["patient"] in profiles
+        else get_patient(case["patient"])
+    )
     edits = case.get("edits", {})
     for entry in bundle["entry"]:
         resource = entry["resource"]
@@ -248,14 +252,23 @@ def permission_checks():
     return rows
 
 
-def run(mode="offline", model=None, limit=None, include_permissions=True, pricing=None):
-    raw = DATASET.read_bytes()
+def run(
+    mode="offline",
+    model=None,
+    limit=None,
+    include_permissions=True,
+    pricing=None,
+    dataset_path=None,
+):
+    raw = Path(dataset_path or DATASET).read_bytes()
     dataset = json.loads(raw)
     if mode not in {"offline", "live"}:
         raise ValueError("Mode must be offline or live.")
     if limit is not None and (type(limit) is not int or not 1 <= limit <= len(dataset["cases"])):
         raise ValueError("Limit must select at least one case and not exceed the dataset.")
     cases = dataset["cases"][:limit]
+    if not cases:
+        raise ValueError("The evaluation dataset must contain at least one case.")
     if mode == "live" and (model is None or not model.model):
         raise ValueError("Configure a model before running live evaluation.")
     if (
@@ -266,7 +279,7 @@ def run(mode="offline", model=None, limit=None, include_permissions=True, pricin
         raise ValueError("Pricing provider and model must match before making provider calls.")
     rows = []
     for case in cases:
-        item = fixture(case, dataset["as_of"])
+        item = fixture(case, dataset["as_of"], dataset.get("profiles"))
         original = copy.deepcopy(item)
         assistant = EvidenceAssistant(model if mode == "live" else OfflineModel())
         result = assistant.answer(item, AssistantRequest(question=case["question"]))
@@ -289,7 +302,9 @@ def run(mode="offline", model=None, limit=None, include_permissions=True, pricin
             }
         )
     faults = (
-        fault_checks(fixture(dataset["cases"][0], dataset["as_of"])) if mode == "offline" else []
+        fault_checks(fixture(dataset["cases"][0], dataset["as_of"], dataset.get("profiles")))
+        if mode == "offline"
+        else []
     )
     permissions = permission_checks() if include_permissions and mode == "offline" else []
     latency = sorted(r["latency_ms"] for r in rows)
@@ -469,10 +484,14 @@ def main():
     parser.add_argument("--output", default=".local/evaluation")
     parser.add_argument("--trace", action="store_true")
     parser.add_argument("--pricing", type=Path, help="JSON with verified, dated per-million rates")
+    parser.add_argument("--dataset", type=Path, help="Versioned local JSON dataset; CLI only")
     parser.add_argument("--api-url", help="Use configured dashboard model via signed-in local API")
     args = parser.parse_args()
-    if args.limit is not None and not 1 <= args.limit <= 22:
-        parser.error("limit must be 1–22")
+    case_count = len(json.loads((args.dataset or DATASET).read_bytes())["cases"])
+    if args.limit is not None and not 1 <= args.limit <= case_count:
+        parser.error(f"limit must be 1–{case_count}")
+    if args.api_url and args.dataset:
+        parser.error("--dataset is only supported by direct CLI evaluations")
     if args.api_url and (args.mode != "live" or (args.limit or 3) > 5):
         parser.error("--api-url requires --mode live and a limit of 1–5")
     if args.trace:
@@ -492,6 +511,7 @@ def main():
             ProviderSettings().client() if args.mode == "live" else None,
             args.limit,
             pricing=pricing,
+            dataset_path=args.dataset,
         )
     save(report, args.output)
     print(json.dumps(report["summary"], indent=2))

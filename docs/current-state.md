@@ -1,5 +1,26 @@
 # HealthOps checkpoint
 
+## Portfolio release checkpoint — September 21, 2026
+
+v0.2.0 packages the local authenticated review workflow, monitoring, and evidence
+assistant. A frozen first-pass live evaluation on 24 new questions and six new
+handcrafted profiles passed **23/24**. A prompt-only experiment passed 21/24 and
+was rejected; the app retains the original assistant v3. Both reports and protocols
+are published in [the fresh evaluation](evaluation/fresh/README.md). All 48 traces
+were retrieved; the two runs cost an estimated $0.047352. The cases were authored
+with knowledge of the implementation, not independently blinded.
+
+Verification: 144 Python tests passed; the restored v3 assistant/evaluator subset
+also passed all 40 tests. Nine browser scenarios passed. A 1 minute 54 second
+captioned recording exercises sign-in, evidence inspection, screening, safe
+assistant behavior, a simulated review, and reopening history. It uses an isolated
+fixture ledger and evidence-only mode. See [the demo and manual acceptance checklist](demo/walkthrough.md).
+The rebuilt Docker stack is healthy and retains five Synthea patients, eight
+assessments, and three registry studies. Provider configuration and MLflow capture
+remain available. The publication export passed Gitleaks with no detected secrets.
+Final human acceptance, actual registry rule approvals, and independent domain
+validation remain open. Historical checkpoints below describe earlier states.
+
 ## Live model checkpoint — September 21, 2026
 
 OpenAI `gpt-5.4-mini` is configured locally through the ignored `.env` file.

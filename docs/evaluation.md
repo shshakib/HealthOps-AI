@@ -10,6 +10,11 @@ The [live GPT-5.4 mini report](evaluation/live/README.md) adds a real-provider r
 22/22 public regression cases passed after a routing clarification. It includes
 the original 2/3 result, the successful 3/3 retest, and token/cost measurements.
 
+A subsequent [fresh evaluation](evaluation/fresh/README.md) adds six new profiles
+and 24 new questions: **23/24 on the frozen v3 first pass**. A prompt-only v4
+experiment passed 21/24 and was rejected. Both reports are retained. These cases
+were prepared by the implementation's author, not an independent clinical reviewer.
+
 ## What is checked
 
 The versioned dataset is `src/healthops/evaluation_cases.json`. It covers met,

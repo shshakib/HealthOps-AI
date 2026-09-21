@@ -1,0 +1,8 @@
+{
+  "created_at": "2026-09-21T19:52:15.729528+00:00",
+  "assistant_version": "evidence-assistant-v4",
+  "assistant_source_sha256_lf": "7a43a643bb54c979b934aef4eac032614a445c5651e3b66264d4f63ced9f1932",
+  "dataset_sha256": "599b213dad1765f9beff135a1f205eaf1329fec8c998026f01e2f066225c09d8",
+  "plan": "One full 24-case retest after clarifying mandatory evidence lookup for specific unknown requirements; then all 22 original regression cases. These are now tuned regression results, not unseen validation.",
+  "maximum_model_calls": 184
+}

@@ -1,0 +1,14 @@
+{
+  "created_at": "2026-09-21T19:16:12.503396+00:00",
+  "assistant_commit": "178a42848f250e28cbbcf0829ec467e44a7b6398",
+  "assistant_version": "evidence-assistant-v3",
+  "assistant_source_sha256_lf": "11cfe08748c4ace933a6eb7f098649333997882420f35969c919e6181244f44d",
+  "evaluator_source_sha256_lf": "53c627f2f20546674bbb64c06773a7678da55284718e3797eae995e08712ca21",
+  "dataset_sha256": "599b213dad1765f9beff135a1f205eaf1329fec8c998026f01e2f066225c09d8",
+  "case_count": 24,
+  "profile_count": 6,
+  "maximum_model_calls": 96,
+  "model": "gpt-5.4-mini",
+  "provider": "openai",
+  "protocol": "One first-pass live run with frozen prompt, cases and grader. Preserve failures before any tuning. The author knows the implementation; this is not independently blinded. Model ID is an alias."
+}
