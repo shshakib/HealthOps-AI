@@ -39,10 +39,25 @@ Other providers and an independent held-out benchmark remain unverified.
 
 ## Choose a provider, model, and API key
 
-Open a saved assessment, then expand **Model connection settings** in the assistant.
+As an administrator, choose **Settings** in the top account bar to open the
+separate **AI configuration** page. No saved assessment is needed. Reviewers and
+viewers do not have access to configuration or connection tests.
 Choose **OpenAI**, **Claude (Anthropic)**, **Gemini (Google)**, **Ollama (local)**,
 or **Evidence only**. Enter the exact model ID from your provider account. Cloud
 providers also need an API key. Choose **Save model settings** to activate it.
+
+Optionally choose **Test saved connection** after saving. This runs one bundled
+fictional assessment check through the admin-only evaluation endpoint (at most
+four model calls); cloud providers may charge for it. It creates an evaluation
+report, not a patient assessment or review. It checks connectivity and one
+validated response, not general model quality. Unsaved changes must be saved
+before testing. Saving alone still makes no provider request.
+
+Choose **Back to workspace** to resume the same assessment and any unfinished
+review. The assessment assistant shows the configured provider, questions,
+citations, and evidence-only controls. If a model answer falls back, administrators
+can use **Open AI settings**; other roles see the explanation without configuration
+controls. Settings saves refresh the assistant status in the current page.
 
 Saving makes no provider request. Asking a question with a cloud provider selected
 sends that question and selected synthetic assessment findings/source excerpts to

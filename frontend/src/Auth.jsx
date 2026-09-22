@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import AISettings from "./AISettings.jsx";
 
 const Identity = createContext(null);
 export const useIdentity = () => useContext(Identity);
@@ -288,6 +289,9 @@ export default function AuthGate({ children }) {
     setPassword("");
   };
   useEffect(() => {
+    if (panel) window.scrollTo(0, 0);
+  }, [panel]);
+  useEffect(() => {
     window.addEventListener("healthops-session-ended", ended);
     authApi("/auth/me")
       .then(setUser)
@@ -385,7 +389,14 @@ export default function AuthGate({ children }) {
       </main>
     );
   return (
-    <Identity.Provider value={{ ...user, canReview: user.role !== "viewer" }}>
+    <Identity.Provider
+      value={{
+        ...user,
+        canReview: user.role !== "viewer",
+        openAISettings:
+          user.role === "admin" ? () => setPanel("ai") : undefined,
+      }}
+    >
       <div className="account-bar">
         <span>
           Signed in as <strong>{user.username}</strong> · {user.role}
@@ -395,20 +406,24 @@ export default function AuthGate({ children }) {
             <button onClick={() => setPanel("")}>Back to workspace</button>
           )}
           {user.role === "admin" && (
-            <button onClick={() => setPanel("users")}>Manage users</button>
+            <>
+              <button onClick={() => setPanel("users")}>Manage users</button>
+              <button onClick={() => setPanel("ai")}>Settings</button>
+            </>
           )}
           <button onClick={() => setPanel("password")}>Change password</button>
           <button onClick={logout}>Sign out</button>
         </div>
       </div>
       {error && <p role="alert">{error}</p>}
-      {panel === "users" && user.role === "admin" ? (
+      {panel === "ai" && user.role === "admin" ? (
+        <AISettings api={authApi} />
+      ) : panel === "users" && user.role === "admin" ? (
         <Administration />
       ) : panel === "password" ? (
         <ChangePassword done={ended} />
-      ) : (
-        children
-      )}
+      ) : null}
+      <div hidden={Boolean(panel)}>{children}</div>
     </Identity.Provider>
   );
 }

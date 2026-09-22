@@ -81,7 +81,7 @@ own usage telemetry is disabled.
 ## Run a bounded real-model smoke test
 
 As an Admin, configure the provider, exact model ID, and key privately under
-**Model connection settings** in the dashboard. Settings entered there last until
+**Settings → AI configuration** in the dashboard. Settings entered there last until
 the app restarts. Then use the same running server:
 
 ```powershell

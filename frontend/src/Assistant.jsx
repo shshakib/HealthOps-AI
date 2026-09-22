@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { MessageSquareText, ArrowUpRight, LoaderCircle } from "lucide-react";
 import { useIdentity } from "./Auth.jsx";
-import ProviderSettings from "./ProviderSettings.jsx";
 
 const questions = [
   "Explain this screening",
@@ -14,21 +13,21 @@ const reasons = {
   api_key_missing:
     "This provider needs an API key. Showing saved evidence directly.",
   invalid_api_key:
-    "The provider rejected the API key. Check model connection settings.",
+    "The AI connection needs administrator attention. Showing saved evidence directly.",
   provider_access_denied:
-    "The provider denied access. Check your key and model permissions.",
+    "The provider denied access. An administrator can check the connection. Showing saved evidence directly.",
   provider_rate_limit:
     "The provider's rate or quota limit was reached. Showing saved evidence directly.",
   model_not_available:
-    "The model was not available. Check the model ID and account access.",
+    "The model is unavailable. An administrator can check the connection. Showing saved evidence directly.",
   provider_request_rejected:
-    "The provider rejected the request. This model may not support the required tools or response format.",
+    "The model could not process the request. Showing saved evidence directly.",
   requested_evidence_only:
     "Showing saved evidence directly, without using a model.",
 };
 
 export default function Assistant({ item, api, onCitation }) {
-  const { role } = useIdentity();
+  const { role, openAISettings } = useIdentity();
   const [question, setQuestion] = useState(questions[0]);
   const [answer, setAnswer] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -37,11 +36,21 @@ export default function Assistant({ item, api, onCitation }) {
   const [evidenceOnly, setEvidenceOnly] = useState(false);
   useEffect(() => {
     let active = true;
-    api("/assistant/status")
-      .then((s) => active && setStatus(s))
-      .catch(() => {});
+    const refresh = () =>
+      api("/assistant/status")
+        .then((s) => active && setStatus(s))
+        .catch(() => {});
+    const changed = () => {
+      setAnswer(null);
+      refresh();
+    };
+    refresh();
+    window.addEventListener("healthops-ai-settings-changed", changed);
+    window.addEventListener("focus", refresh);
     return () => {
       active = false;
+      window.removeEventListener("healthops-ai-settings-changed", changed);
+      window.removeEventListener("focus", refresh);
     };
   }, [api]);
   async function ask(value) {
@@ -77,17 +86,6 @@ export default function Assistant({ item, api, onCitation }) {
         Explore the findings and what remains unresolved. Every answer stays
         linked to this saved assessment.
       </p>
-      {role === "admin" && status?.providers?.length > 0 && (
-        <ProviderSettings
-          status={status}
-          api={api}
-          disabled={busy}
-          onSaved={(next) => {
-            setStatus((previous) => ({ ...previous, ...next }));
-            setAnswer(null);
-          }}
-        />
-      )}
       {["openai", "anthropic", "gemini"].includes(status?.provider) &&
         !evidenceOnly && (
           <p className="provider-notice">
@@ -166,6 +164,15 @@ export default function Assistant({ item, api, onCitation }) {
             <p className="muted">
               {reasons[answer.fallback_reason] ||
                 "The model could not complete a validated answer. Showing the evidence-only fallback."}
+              {role === "admin" &&
+                answer.fallback_reason !== "requested_evidence_only" && (
+                  <>
+                    {" "}
+                    <button className="text-button" onClick={openAISettings}>
+                      Open AI settings
+                    </button>
+                  </>
+                )}
             </p>
           )}
           <p>{answer.answer}</p>

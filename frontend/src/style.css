@@ -1790,9 +1790,16 @@ dialog::backdrop {
   margin: 14px 0;
   background: #fff;
 }
-.provider-settings summary {
-  cursor: pointer;
-  font-weight: 600;
+.ai-settings {
+  max-width: 850px;
+}
+.ai-settings h1 {
+  margin-top: 10px;
+}
+.connection-test {
+  border-top: 1px solid #d4e4e1;
+  margin-top: 24px;
+  padding-top: 20px;
 }
 .provider-settings fieldset {
   border: 0;

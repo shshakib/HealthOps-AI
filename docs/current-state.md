@@ -1,5 +1,27 @@
 # HealthOps checkpoint
 
+## Admin AI settings — September 22, 2026
+
+Model configuration now lives in **Settings → AI configuration**, available only
+to administrators from the account bar. The assessment assistant retains its
+provider status, questions, cited answers, and evidence-only switch. Admins can
+open settings from a fallback answer. Opening settings and returning preserves
+the selected assessment, assistant question, and unfinished review draft.
+
+The optional **Test saved connection** button reuses the bounded admin evaluation
+endpoint with one fictional case and at most four model calls. It tests saved
+settings only and does not create an assessment or human review. Cloud calls may
+incur charges; saving settings still makes no provider call. Existing API role
+checks remain in force. Dashboard settings still live in server memory; `.env`
+supplies persistent defaults.
+
+Verification: 26 authentication/evaluation Python tests and all ten browser
+scenarios passed. Browser checks cover denied settings/evaluation API requests
+for viewers and reviewers, key handling, returning to an unfinished review,
+status refresh, and connection-test success/failure with simulated responses.
+Desktop/mobile settings screenshots were inspected. No paid model calls were
+made for this change. See [the assistant guide](assistant.md).
+
 ## Portfolio release checkpoint — September 21, 2026
 
 v0.2.0 packages the local authenticated review workflow, monitoring, and evidence

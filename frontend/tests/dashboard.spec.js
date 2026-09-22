@@ -22,9 +22,17 @@ test("provider settings save and clear keys without exposing them or calling a m
   await page
     .getByRole("button", { name: "Run screening", exact: true })
     .click();
-  const panel = page.getByRole("region", { name: "Screening assistant" });
-  await panel.getByText("Model connection settings", { exact: true }).click();
+  const assistant = page.getByRole("region", { name: "Screening assistant" });
+  await expect(assistant.getByLabel("AI provider")).toHaveCount(0);
   const id = page.url().split("#assessment/")[1];
+  await page
+    .getByRole("textbox", { name: "Reason", exact: true })
+    .fill("Keep my unfinished review while configuring AI.");
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "AI configuration", exact: true }),
+  ).toBeVisible();
+  const panel = page.getByRole("region", { name: "Model connection settings" });
   const fakeKey = "fake-ui-key-never-a-real-credential";
   for (const provider of ["openai", "anthropic", "gemini"]) {
     await panel
@@ -55,13 +63,23 @@ test("provider settings save and clear keys without exposing them or calling a m
       ),
     ).not.toContain(fakeKey);
     // The bypass must remain usable with a configured cloud key and make no model call.
-    await panel.getByRole("switch").check();
-    await panel
+    await page
+      .getByRole("button", { name: "Back to workspace", exact: true })
+      .click();
+    await expect(assistant.locator(".assistant-mode")).toContainText(
+      "configured",
+    );
+    await expect(
+      page.getByRole("textbox", { name: "Reason", exact: true }),
+    ).toHaveValue("Keep my unfinished review while configuring AI.");
+    await assistant.getByRole("switch").check();
+    await assistant
       .getByRole("button", { name: "Explain this screening", exact: true })
       .click();
     await expect(
-      panel.getByText("Evidence-only answer", { exact: true }),
+      assistant.getByText("Evidence-only answer", { exact: true }),
     ).toBeVisible();
+    await page.getByRole("button", { name: "Settings", exact: true }).click();
     await panel
       .getByRole("button", { name: "Remove API key", exact: true })
       .click();
@@ -76,13 +94,15 @@ test("provider settings save and clear keys without exposing them or calling a m
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
-  await panel
-    .locator(".provider-settings")
-    .screenshot({ path: "../.local/provider-settings-mobile.png" });
+  await page.screenshot({
+    path: "../.local/provider-settings-mobile.png",
+    fullPage: true,
+  });
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await panel
-    .locator(".provider-settings")
-    .screenshot({ path: "../.local/provider-settings-desktop.png" });
+  await page.screenshot({
+    path: "../.local/provider-settings-desktop.png",
+    fullPage: true,
+  });
   await panel
     .getByRole("combobox", { name: "AI provider", exact: true })
     .selectOption("offline");
@@ -95,6 +115,63 @@ test("provider settings save and clear keys without exposing them or calling a m
   expect(
     (await (await request.get(`/api/v1/screenings/${id}`)).json()).reviews,
   ).toHaveLength(0);
+});
+
+test("admin tests a saved AI connection without an assessment and sees validation failures", async ({
+  page,
+  request,
+}) => {
+  const before = await (await request.get("/api/v1/screenings")).json();
+  await page.goto("/");
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  const panel = page.getByRole("region", { name: "Model connection settings" });
+  const check = panel.getByRole("button", {
+    name: "Test saved connection",
+    exact: true,
+  });
+  await expect(check).toBeDisabled();
+  await panel.getByLabel("AI provider", { exact: true }).selectOption("openai");
+  await panel.getByLabel("Model ID", { exact: true }).fill("test-model");
+  await panel
+    .getByLabel("Provider API key", { exact: true })
+    .fill("fake-ui-key-never-a-real-credential");
+  await expect(check).toBeDisabled();
+  await panel
+    .getByRole("button", { name: "Save model settings", exact: true })
+    .click();
+  await expect(check).toBeEnabled();
+  let calls = 0;
+  // UI result handling is stubbed; API evaluation/permissions have separate Python tests.
+  await page.route("**/api/v1/admin/evaluations", async (route) => {
+    expect(route.request().postDataJSON()).toEqual({ limit: 1 });
+    calls += 1;
+    await route.fulfill({ json: { passed: calls === 1 } });
+  });
+  await check.click();
+  await expect(panel).toContainText("Connection verified.");
+  await panel
+    .getByLabel("Model ID", { exact: true })
+    .fill("another-test-model");
+  await expect(check).toBeDisabled();
+  await expect(panel).not.toContainText("Connection verified.");
+  await panel
+    .getByRole("button", { name: "Save model settings", exact: true })
+    .click();
+  await check.click();
+  await expect(panel.getByRole("alert")).toContainText(
+    "did not complete a validated answer",
+  );
+  expect(calls).toBe(2);
+  expect(await (await request.get("/api/v1/screenings")).json()).toEqual(
+    before,
+  );
+  await panel
+    .getByLabel("AI provider", { exact: true })
+    .selectOption("offline");
+  await panel
+    .getByRole("button", { name: "Save model settings", exact: true })
+    .click();
+  await expect(check).toBeDisabled();
 });
 
 test("assistant explains saved evidence, opens citations, and leaves decisions human", async ({
@@ -152,6 +229,16 @@ test("assistant explains saved evidence, opens citations, and leaves decisions h
   await expect(panel).toContainText("I cannot make clinical decisions");
   const after = await (await request.get(`/api/v1/screenings/${id}`)).json();
   expect(after).toEqual(before);
+  await panel
+    .getByRole("button", { name: "Open AI settings", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "AI configuration", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Back to workspace", exact: true })
+    .click();
+  await expect(panel).toContainText("I cannot make clinical decisions");
   await expect(
     page.getByRole("heading", { name: "Record your decision" }),
   ).toBeVisible();

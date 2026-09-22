@@ -38,7 +38,9 @@ or enroll anyone.
 2. Select `Synthetic demo-001` and run the fictional screening exercise.
 3. Expand a finding and open its supporting evidence.
    Use **Ask about this assessment** to explain the result or show missing evidence.
-   Expand **Model connection settings** to choose a provider/model and enter a cloud API key.
+   Administrators use **Settings → AI configuration** in the top account bar to
+   choose a provider/model and enter a cloud API key. Configuration is separate
+   from the assessment. **Back to workspace** preserves unfinished review text.
    Keys entered here stay in server memory for the current session; saving does not call a model.
 4. Choose a next step, enter a reason under your signed-in identity, acknowledge the evidence,
    and save your review.

@@ -4,22 +4,38 @@
 
 **v0.2.0 · Local portfolio preview**
 
-A clinical-trial prescreening workbench portfolio project. The workflow is:
-read synthetic patient records, compare selected trial criteria, show evidence and
-unknowns, then let a human record the next screening step.
+HealthOps helps a research coordinator check whether a patient might be a fit for
+a clinical trial. You select a patient and a trial, and it compares the patient's
+records with the trial rules it can check. For each requirement, it shows
+**met**, **not met**, or **unknown** (not enough information), along with the
+evidence behind the result.
 
-**Current capabilities:** a working dashboard, reproducible Synthea pipeline,
-real registry snapshots, authenticated human review, role permissions, local MLflow
-tracing, regression evaluation, and optional Ollama/OpenAI/Claude/Gemini assistance.
-The verified local demo generated five patients in HAPI; a fresh checkout starts with
-an empty FHIR database and also offers bundled handcrafted fixtures. Three
-actual ClinicalTrials.gov snapshots are available offline, with partial rule drafts
-awaiting human approval. The two fictional exercises remain available. Registry
-screening requires explicit interpretation approval and keeps unmodeled criteria
-visible for manual review. The synthetic example assessment date is **2026-09-01**.
+The reviewer then decides what to do next: request more information, move the case
+forward for further screening, or dismiss it. HealthOps saves that decision and
+the reason, so someone can come back later and see what was checked and why the
+decision was made. That is where this workflow ends; it does not enroll patients.
 
-Original code is licensed under [MIT](LICENSE). See [third-party notices](THIRD_PARTY_NOTICES.md)
-for public registry records and upstream dependencies.
+**AI assistance is optional.** The checks themselves use code and defined rules.
+The optional AI assistant helps you ask questions about a saved assessment, such
+as "Why is this requirement marked unknown?" It finds the relevant saved results
+and supporting records, and the app builds an answer with references you can check.
+The reviewer still makes the decision. You can also use the app without an AI model.
+
+This is a local portfolio demo using **synthetic patient records**. It checks a
+limited set of requirements, so a possible match still needs a full human review.
+
+## A simple example
+
+Imagine you're reviewing a patient for a diabetes study. Their age and recorded
+diagnosis meet the rules, but their latest blood test is too old to check another
+requirement. HealthOps shows those first two results as **met** and the blood-test
+requirement as **unknown**, with the record and date behind each finding.
+
+You can ask the assistant why the result is unknown, inspect the evidence, then
+choose **Request information** and record that a more recent test result is needed.
+The assessment and your reason are saved in the review history. You can try this
+scenario with the bundled fictional patient `demo-002`, trial `DEMO-T2D-001`,
+and assessment date `2026-09-01`.
 
 ## Interface preview
 
@@ -40,9 +56,8 @@ a fresh checkout starts with an empty HAPI database. All patients shown are synt
 
 ## What happens from data to a human decision
 
-HealthOps compares a selected patient's recorded evidence with a limited set of
-trial requirements. It shows **met**, **not met**, or **unknown** for each requirement,
-preserves the evidence used, and lets a human record the next screening step.
+The diagram below shows how patient records and trial rules reach the reviewer,
+where the optional assistant fits, and what gets saved.
 
 ```mermaid
 flowchart TD
@@ -184,6 +199,22 @@ review is recorded. Unknowns remain visible, even when a reviewer advances a cas
 
 ## What exists today
 
+The app includes a dashboard, patient-data generation and import, saved trial
+records, login and role permissions, human review, and optional
+Ollama/OpenAI/Claude/Gemini assistance. MLflow records assistant activity, and
+automated evaluations check its behavior.
+
+**Demo data:** the verified local demo generated five patients in HAPI FHIR.
+A fresh checkout starts with an empty FHIR database and also offers bundled
+handcrafted patient records. Three actual ClinicalTrials.gov snapshots are
+available offline, with partial rule drafts awaiting human approval. The two
+fictional exercises remain available. Before screening against a real trial,
+a reviewer must approve how its requirements have been translated into rules.
+Requirements the code cannot check stay visible for manual review.
+The synthetic example assessment date is **2026-09-01**.
+
+Technical details:
+
 - Deterministic age, documented-condition, and recent-lab comparisons.
 - `met`, `not_met`, and `unknown` with resource references.
 - Snapshot hashes, rules version, and the original input stored with each screening.
@@ -208,7 +239,7 @@ The ledger is not tamper-proof. Full FHIR profile validation, tenant isolation,
 enterprise SSO, and production deployment are not implemented.
 
 The [evidence assistant](docs/assistant.md) now explains saved findings and unknowns
-in the dashboard. Administrators can use **Model connection settings** for Ollama, OpenAI, Claude,
+in the dashboard. Administrators can use **Settings → AI configuration** for Ollama, OpenAI, Claude,
 and Gemini, with provider/model selection and server-session API keys. All use
 read-only tools; the default evidence-only mode works without a model.
 GPT-5.4 mini passed **22/22 public synthetic regression cases** in a real-provider
@@ -231,3 +262,6 @@ review ledger until the separate application-database migration.
 See [the project brief](docs/project-brief.md) for scope and
 [the milestones](docs/milestones.md) for acceptance criteria and next steps.
 See [the current checkpoint](docs/current-state.md) to resume after an interruption.
+
+Original code is licensed under [MIT](LICENSE). See [third-party notices](THIRD_PARTY_NOTICES.md)
+for public registry records and upstream dependencies.

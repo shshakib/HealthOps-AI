@@ -19,6 +19,25 @@ test("login, viewer restrictions, and logout protect the workspace", async ({
   expect((await page.request.get("/api/v1/patients")).status()).toBe(401);
   await page.screenshot({ path: "../.local/auth-login.png", fullPage: true });
   await signIn(page, "ui-viewer");
+  await expect(
+    page.getByRole("button", { name: "Settings", exact: true }),
+  ).toHaveCount(0);
+  expect(
+    (
+      await page.request.post("/api/v1/assistant/settings", {
+        headers: { "X-HealthOps-Request": "1" },
+        data: { provider: "offline", model: "" },
+      })
+    ).status(),
+  ).toBe(403);
+  expect(
+    (
+      await page.request.post("/api/v1/admin/evaluations", {
+        headers: { "X-HealthOps-Request": "1" },
+        data: { limit: 1 },
+      })
+    ).status(),
+  ).toBe(403);
   await page
     .getByRole("combobox", { name: "Patient data", exact: true })
     .selectOption("fixtures");
@@ -47,6 +66,25 @@ test("reviewer identity is fixed and AI configuration stays administrator-only",
   page,
 }) => {
   await signIn(page, "ui-reviewer");
+  await expect(
+    page.getByRole("button", { name: "Settings", exact: true }),
+  ).toHaveCount(0);
+  expect(
+    (
+      await page.request.post("/api/v1/assistant/settings", {
+        headers: { "X-HealthOps-Request": "1" },
+        data: { provider: "offline", model: "" },
+      })
+    ).status(),
+  ).toBe(403);
+  expect(
+    (
+      await page.request.post("/api/v1/admin/evaluations", {
+        headers: { "X-HealthOps-Request": "1" },
+        data: { limit: 1 },
+      })
+    ).status(),
+  ).toBe(403);
   await page
     .getByRole("combobox", { name: "Patient data", exact: true })
     .selectOption("fixtures");

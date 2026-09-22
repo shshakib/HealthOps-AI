@@ -7,24 +7,34 @@ export default function ProviderSettings({ status, api, onSaved, disabled }) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState(null);
   const current = status.providers.find((p) => p.id === provider);
   const cloud = ["openai", "anthropic", "gemini"].includes(provider);
+  const unsaved =
+    provider !== status.provider ||
+    model !== (status.model || "") ||
+    Boolean(key.trim());
   function changeProvider(value) {
     setProvider(value);
     setModel(status.providers.find((p) => p.id === value)?.model || "");
     setKey("");
     setError("");
     setMessage("");
+    setTestResult(null);
   }
   async function save(clearKey = false) {
     setBusy(true);
     setError("");
     setMessage("");
+    setTestResult(null);
     const payload = { provider, model, clear_key: clearKey };
     if (!clearKey && key.trim()) payload.api_key = key.trim();
     setKey("");
     try {
       const result = await api("/assistant/settings", payload);
+      setProvider(result.provider);
+      setModel(result.model || "");
       onSaved(result);
       setMessage(
         clearKey
@@ -37,16 +47,38 @@ export default function ProviderSettings({ status, api, onSaved, disabled }) {
       setBusy(false);
     }
   }
+  async function testConnection() {
+    setTesting(true);
+    setTestResult(null);
+    setError("");
+    try {
+      // Reuse the bounded admin-only evaluation; never submit a patient review.
+      const report = await api("/admin/evaluations", { limit: 1 });
+      setTestResult({
+        passed: report.passed,
+        text: report.passed
+          ? "Connection verified. The saved model completed one synthetic assessment check."
+          : "The model did not complete a validated answer. Check the provider, model, key, and account access. Evidence-only mode remains available.",
+      });
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setTesting(false);
+    }
+  }
   return (
-    <details className="provider-settings">
-      <summary>Model connection settings</summary>
+    <section
+      className="provider-settings"
+      aria-label="Model connection settings"
+    >
+      <h2>Model connection settings</h2>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           save();
         }}
       >
-        <fieldset disabled={busy || disabled}>
+        <fieldset disabled={busy || disabled || testing}>
           <div className="provider-fields">
             <label>
               Provider
@@ -68,7 +100,10 @@ export default function ProviderSettings({ status, api, onSaved, disabled }) {
                 <input
                   aria-label="Model ID"
                   value={model}
-                  onChange={(e) => setModel(e.target.value)}
+                  onChange={(e) => {
+                    setModel(e.target.value);
+                    setTestResult(null);
+                  }}
                   required
                   maxLength={100}
                   placeholder="Exact model ID from your provider"
@@ -87,7 +122,10 @@ export default function ProviderSettings({ status, api, onSaved, disabled }) {
                   type="password"
                   autoComplete="new-password"
                   value={key}
-                  onChange={(e) => setKey(e.target.value)}
+                  onChange={(e) => {
+                    setKey(e.target.value);
+                    setTestResult(null);
+                  }}
                   maxLength={1024}
                   placeholder={
                     current?.key_configured
@@ -134,6 +172,37 @@ export default function ProviderSettings({ status, api, onSaved, disabled }) {
       </form>
       {message && <p role="status">{message}</p>}
       {error && <p role="alert">{error}</p>}
-    </details>
+      <div className="connection-test">
+        <h3>Check the saved connection</h3>
+        <p>
+          Runs one fictional assessment check using the saved settings, with up
+          to four model calls. Cloud providers may charge for this test. No
+          patient assessment or review is created. A successful check does not
+          validate every answer the model might give.
+        </p>
+        {unsaved && <p className="muted">Save your changes before testing.</p>}
+        {!status.model_configured && (
+          <p className="muted">
+            Configure a model and any required key to enable testing.
+          </p>
+        )}
+        <button
+          className="secondary"
+          type="button"
+          onClick={testConnection}
+          disabled={
+            busy || disabled || testing || unsaved || !status.model_configured
+          }
+        >
+          {testing ? "Testing connection…" : "Test saved connection"}
+        </button>
+        {testing && (
+          <p role="status">Checking the model; this may take up to a minute.</p>
+        )}
+        {testResult && (
+          <p role={testResult.passed ? "status" : "alert"}>{testResult.text}</p>
+        )}
+      </div>
+    </section>
   );
 }
