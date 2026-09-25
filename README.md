@@ -39,20 +39,22 @@ and assessment date `2026-09-01`.
 
 ## Interface preview
 
-[Two-minute captioned demo](https://github.com/shshakib/healthops-ai/releases/download/v0.2.0/healthops-demo.webm)
-· [Walkthrough](docs/demo/walkthrough.md)
-· [Fresh evaluation: 23/24 first pass, preserved failures](docs/evaluation/fresh/README.md)
-
 ![HealthOps saved assessment with evidence and a clearly labeled automated synthetic-data demo](docs/images/review-workbench-v0.2.png)
 
-*September 21, 2026: isolated fixture workspace. The recording shows evidence-only
-assistance and a simulated review; actual OpenAI results are in the linked reports.*
+*September 21, 2026: isolated fixture workspace, showing evidence-only assistance
+and a simulated review.*
 
 ![HealthOps dashboard showing synthetic patient selection, health-record counts, and a trial-screening form](docs/images/patient-screening-dashboard.png)
 
 *Actual local interface with imported Synthea patients and a fictional screening
 exercise, captured September 14, 2026. Counts reflect that demonstration workspace;
 a fresh checkout starts with an empty HAPI database. All patients shown are synthetic.*
+
+Want to see the full workflow? [Watch the complete walkthrough (13 minutes, with captions)](https://github.com/shshakib/HealthOps-AI/releases/download/v0.2.0/healthops-full-demo.mp4).
+It covers the architecture, login and permissions, settings, trial rules, patient
+screening, and human review. [Recording details and narration](docs/demo/video-one.md).
+
+[Fresh AI evaluation: 23/24 first pass, with failures preserved](docs/evaluation/fresh/README.md).
 
 ## What happens from data to a human decision
 

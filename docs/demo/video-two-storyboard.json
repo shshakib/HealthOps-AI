@@ -1,0 +1,242 @@
+[
+  {
+    "chapter": "What this tour covers",
+    "image": "repo-title",
+    "captions": [
+      "In the first video, I showed how someone uses HealthOps. This time, let's open the project and see how it is put together.",
+      "I'll go through the main folders, explain what they contain, and follow a screening request through the code. You don't need to read every line."
+    ]
+  },
+  {
+    "chapter": "Start at the repository",
+    "image": "repository",
+    "captions": [
+      "This is the public GitHub repository. The README explains the problem, shows the workflow, and gives you the instructions to run it locally.",
+      "The main folders separate the interface, Python application, sample data, documentation, and tests. Let's start with the part a reviewer actually sees."
+    ]
+  },
+  {
+    "chapter": "The interface",
+    "image": "frontend",
+    "captions": [
+      "The frontend folder contains the React application. This is the dashboard with login, patient selection, trial rules, assessments, and review history.",
+      "package.json lists its tools and dependencies. The lock file records dependency versions, and Vite builds the interface into files the application can serve."
+    ]
+  },
+  {
+    "chapter": "The interface",
+    "image": "frontend-src",
+    "captions": [
+      "Inside frontend/src, main.jsx brings the workspace together. The JSX files define the screens and their behavior, while style.css controls their appearance.",
+      "Auth handles login and user management. AISettings and ProviderSettings contain the administrator's model settings, and Assistant contains the assessment question panel."
+    ]
+  },
+  {
+    "chapter": "Follow a screening request",
+    "image": "repo-flow",
+    "captions": [
+      "Imagine a coordinator chooses a patient and a trial, then clicks to run screening. The interface sends that selection to the Python API.",
+      "The application reads the patient's records, checks the supported rules, and saves the findings with their evidence. The dashboard then displays that saved assessment."
+    ]
+  },
+  {
+    "chapter": "The Python application",
+    "image": "src-healthops",
+    "captions": [
+      "That server-side work lives in src/healthops. These are Python files. api.py connects the dashboard's requests to the application functions.",
+      "auth.py handles accounts, sessions, and permissions. Permissions are checked on the server, so hiding a button in the dashboard is not the only control."
+    ]
+  },
+  {
+    "chapter": "The Python application",
+    "image": "src-lower",
+    "captions": [
+      "fhir.py reads patient records from the FHIR service. synthea.py supports the synthetic-data workflow, and trials.py manages the saved clinical-trial records.",
+      "screening.py checks the fictional exercises. trial_rules.py handles reviewed interpretations of registry criteria, including requirements that still need a person's judgment."
+    ]
+  },
+  {
+    "chapter": "The Python application",
+    "image": "repo-backend",
+    "captions": [
+      "The checks use defined rules. If the evidence is missing or cannot support a requirement, the result stays unknown instead of becoming a match.",
+      "store.py keeps the assessment and its evidence. When a reviewer records a decision and reason, that review is saved so it can be revisited."
+    ]
+  },
+  {
+    "chapter": "The optional AI assistant",
+    "image": "assistant-code",
+    "captions": [
+      "The optional AI part is in assistant.py. It helps someone ask questions about an assessment that has already been saved.",
+      "providers.py contains the model connections. The assistant can also run in evidence-only mode, so the core workflow does not require an API key."
+    ]
+  },
+  {
+    "chapter": "The optional AI assistant",
+    "image": "repo-assistant",
+    "captions": [
+      "The model has three read-only tools: read the assessment summary, read evidence for a requirement, and explain the available human review steps.",
+      "For example, it can look up why a blood-test requirement is unknown. The server checks the selected evidence and builds an answer with references.",
+      "This is a small tool-using assistant over saved evidence. There is no document vector database here, and the assistant cannot approve or enroll a patient."
+    ]
+  },
+  {
+    "chapter": "The data folder",
+    "image": "data",
+    "captions": [
+      "Now let's look at data. This folder contains public trial snapshots and synthetic evaluation cases. It is not the running patient database."
+    ]
+  },
+  {
+    "chapter": "The data folder",
+    "image": "clinicaltrials",
+    "captions": [
+      "Each folder here represents a ClinicalTrials.gov study. Its NCT identifier lets us trace the saved record back to the public registry."
+    ]
+  },
+  {
+    "chapter": "The data folder",
+    "image": "study-versions",
+    "captions": [
+      "Inside a study folder, latest.json points to a saved version. The long folder name identifies the snapshot, so the source version stays explicit."
+    ]
+  },
+  {
+    "chapter": "The data folder",
+    "image": "study-files",
+    "captions": [
+      "study.json contains the registry response. snapshot.json records where it came from and when it was retrieved. JSON is structured text the application can read."
+    ]
+  },
+  {
+    "chapter": "The data folder",
+    "image": "snapshot-json",
+    "captions": [
+      "Here you can see that source information. It helps explain which trial record a rule interpretation was based on, even if the online study changes."
+    ]
+  },
+  {
+    "chapter": "Where the running data lives",
+    "image": "repo-storage",
+    "captions": [
+      "The synthetic patient records are generated separately. After import, HAPI serves them from PostgreSQL. The application reaches those records through the FHIR API.",
+      "HealthOps uses SQLite for its accounts and review records. In Docker, persistent volumes keep the databases outside the application image when containers are replaced.",
+      "Generated files and local working data stay outside Git. The small handcrafted examples used in tests are defined separately in demo_data.py."
+    ]
+  },
+  {
+    "chapter": "Documentation and results",
+    "image": "docs",
+    "captions": [
+      "The docs folder explains the design and how to operate the project. Most files are Markdown, which GitHub displays as readable pages.",
+      "The project brief explains the original problem. Current-state records progress, and the focused guides explain authentication, Docker, trial rules, and the assistant."
+    ]
+  },
+  {
+    "chapter": "Documentation and results",
+    "image": "evaluation",
+    "captions": [
+      "Evaluation reports live here too. Markdown explains the results, while JSON keeps the detailed measurements and run information in a format tools can read."
+    ]
+  },
+  {
+    "chapter": "Documentation and results",
+    "image": "evaluation-fresh",
+    "captions": [
+      "This folder preserves both a fresh evaluation and a rejected prompt experiment. It keeps the failures visible instead of showing only the strongest result.",
+      "These are software checks on synthetic cases. They help us understand the assistant's behavior, but they do not establish clinical accuracy."
+    ]
+  },
+  {
+    "chapter": "Tests and local helpers",
+    "image": "tests",
+    "captions": [
+      "The tests folder contains Python tests for the API, screening rules, permissions, data handling, and assistant. These check behavior with controlled inputs.",
+      "For example, we can check that missing evidence stays unknown, an unauthorized action is rejected, and a saved review keeps its recorded reason."
+    ]
+  },
+  {
+    "chapter": "Tests and local helpers",
+    "image": "frontend-tests",
+    "captions": [
+      "frontend/tests covers the browser side with Playwright. It exercises user flows such as signing in, opening evidence, and returning to a saved assessment."
+    ]
+  },
+  {
+    "chapter": "Tests and local helpers",
+    "image": "scripts",
+    "captions": [
+      "scripts contains local helpers. Some check the running stack, imported data, or persistence. Others start an isolated test workspace or demonstrate the workflow.",
+      "These support development and verification. The main application behavior still lives in src/healthops, and the interface code lives in frontend."
+    ]
+  },
+  {
+    "chapter": "Running the project",
+    "image": "infrastructure",
+    "captions": [
+      "The infrastructure folder currently holds the Docker build file for Synthea. It prepares the generator used to create the synthetic patient records.",
+      "This is still the local design. Azure deployment, Databricks, and Snowflake are possible extensions; this folder does not contain a deployed cloud platform."
+    ]
+  },
+  {
+    "chapter": "Running the project",
+    "image": "compose",
+    "captions": [
+      "At the root, compose.yaml describes the services and how they connect. The main Dockerfile builds the dashboard and packages it with the Python application."
+    ]
+  },
+  {
+    "chapter": "Running the project",
+    "image": "repo-runtime",
+    "captions": [
+      "The core stack has HealthOps, HAPI FHIR, and PostgreSQL. Optional profiles run Synthea for data generation and the MLflow interface for inspecting traces.",
+      "telemetry.py records selected operational details for monitoring. That helps inspect assistant activity without putting patient text into those traces."
+    ]
+  },
+  {
+    "chapter": "Dependencies and local settings",
+    "image": "python-package",
+    "captions": [
+      "pyproject.toml defines the Python package, dependencies, and development tools. The requirements lock files constrain dependency versions for the documented setup."
+    ]
+  },
+  {
+    "chapter": "Dependencies and local settings",
+    "image": "gitignore",
+    "captions": [
+      "The example environment file documents settings. Actual local values go in .env, which is ignored by Git, along with databases, generated files, and dependencies.",
+      "The MIT license covers the project's code. THIRD_PARTY_NOTICES records the separate notices that apply to included external material."
+    ]
+  },
+  {
+    "chapter": "Automated GitHub checks",
+    "image": ".github-workflows",
+    "captions": [
+      "The GitHub Actions workflow lives in .github/workflows. checks.yml defines what runs when a change reaches the configured branches, tags, or pull requests."
+    ]
+  },
+  {
+    "chapter": "Automated GitHub checks",
+    "image": "checks",
+    "captions": [
+      "It runs formatting checks, Python tests, an offline assistant evaluation, a frontend build, and browser tests. A separate job scans Git history for secrets.",
+      "The automated evaluation uses no provider keys. This workflow checks the code; it does not deploy an application to Azure when a commit is pushed."
+    ]
+  },
+  {
+    "chapter": "Making a change",
+    "image": "repo-change",
+    "captions": [
+      "So if I want to change a screen, I start in frontend. If I want to change a screening rule, I go to the Python modules.",
+      "For an assistant change, I also run the evaluation cases and inspect the failures. Each change should have evidence that the intended behavior still works."
+    ]
+  },
+  {
+    "chapter": "Where to go next",
+    "image": "repo-end",
+    "captions": [
+      "That's the structure: code for the workflow, sample files to reproduce it, documentation to explain it, and checks to test it.",
+      "If you are exploring the project, start with the README and application walkthrough. Then use these folders to follow the part you want to understand."
+    ]
+  }
+]
