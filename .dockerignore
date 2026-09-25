@@ -24,6 +24,8 @@
 !frontend/vite.config.js
 !frontend/src/
 !frontend/src/**
+!frontend/public/
+!frontend/public/**
 
 !requirements-observability.lock
 !src/healthops/evaluation_cases.json

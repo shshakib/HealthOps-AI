@@ -1,29 +1,33 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
-  Activity,
+  RotateCw as Activity,
   ArrowRight,
   ArrowUpRight,
   Check,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  ClipboardCheck,
+  ClipboardList as ClipboardCheck,
   Clock3,
   FileText,
-  FlaskConical,
-  History,
+  ListChecks as FlaskConical,
+  FolderClock as History,
   Info,
-  Layers3,
+  Rows3 as Layers3,
   LoaderCircle,
   Plus,
   Search,
   ShieldCheck,
-  Users,
+  ContactRound as Users,
   X,
 } from "lucide-react";
 import "./style.css";
+import "@fontsource/ibm-plex-sans/latin-400.css";
+import "@fontsource/ibm-plex-sans/latin-500.css";
+import "@fontsource/ibm-plex-sans/latin-600.css";
 import Assistant from "./Assistant.jsx";
+import BrandMark from "./BrandMark.jsx";
 
 import AuthGate, { authApi as api, useIdentity } from "./Auth.jsx";
 
@@ -244,7 +248,7 @@ function ReviewForm({ kind, item, onSaved, onConflict }) {
         ))}
       </div>
       <p>
-        Reviewer: <strong>{identity.username}</strong> � Signed-in account
+        Reviewer: <strong>{identity.username}</strong> · Signed-in account
       </p>
       <label className="field">
         Reason
@@ -288,7 +292,7 @@ function ReviewForm({ kind, item, onSaved, onConflict }) {
         {rules ? "Save interpretation review" : "Save patient review"}
       </button>
       <p className="micro">
-        Local demo · Reviewer labels are self-reported.{" "}
+        Synthetic data demo · Review saved under your signed-in account.{" "}
         {rules
           ? "Approval is not clinical validation."
           : "Saving a review does not contact anyone or enroll a patient."}
@@ -1169,6 +1173,16 @@ function App() {
   );
   return (
     <div className="app">
+      <a
+        className="skip-link"
+        href="#workspace-content"
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById("workspace-content")?.focus();
+        }}
+      >
+        Skip to workspace
+      </a>
       <aside className="sidebar">
         <a
           href="#screen"
@@ -1179,14 +1193,14 @@ function App() {
           }}
         >
           <span className="brand-icon">
-            <Activity size={24} />
+            <BrandMark />
           </span>
           <span>
-            HealthOps<span className="brand-sub">CLINICAL RESEARCH</span>
+            HealthOps<span className="brand-sub">Clinical research</span>
           </span>
         </a>
-        <div className="nav-label">WORKSPACE</div>
-        <nav>
+        <div className="nav-label">Workspace</div>
+        <nav aria-label="Workspace">
           {[
             ["screen", Users, "Patient screening"],
             ["trials", FlaskConical, "Trial rules"],
@@ -1195,6 +1209,7 @@ function App() {
             <button
               className={view === key ? "active" : ""}
               key={key}
+              aria-current={view === key ? "page" : undefined}
               onClick={() => {
                 navigate(key);
                 if (key === "history") loadHistory();
@@ -1250,29 +1265,24 @@ function App() {
             </button>
           </div>
         </header>
-        <main>
+        <main id="workspace-content" tabIndex={-1}>
           <div className="page-heading">
             <div>
-              <div className="eyebrow">RESEARCH COORDINATOR WORKSPACE</div>
               <h1>
                 {view === "screen"
                   ? "Patient screening"
                   : view === "trials"
-                    ? "From trial text to reviewed rules"
-                    : "Every decision, with its evidence"}
+                    ? "Trial rules"
+                    : "Review history"}
               </h1>
               <p>
                 {view === "screen"
-                  ? "Connect patient evidence to trial requirements. Keep the decision human."
+                  ? "Check patient records against trial requirements, then review the evidence."
                   : view === "trials"
                     ? "Inspect the source, understand the limits, and review each interpretation."
                     : "Reopen a saved assessment and follow the complete review history."}
               </p>
             </div>
-            <span className="page-marker">
-              {view === "screen" ? "01" : view === "trials" ? "02" : "03"}{" "}
-              <span>/ WORKSPACE</span>
-            </span>
           </div>
           <ErrorBox>{error}</ErrorBox>
           {loading && (
@@ -1285,19 +1295,16 @@ function App() {
             <>
               <div className="stats">
                 <Stat
-                  icon={Users}
                   value={patients.hapi.length}
                   label="Synthea patients"
                   detail="Generated records in HAPI"
                 />
                 <Stat
-                  icon={FlaskConical}
                   value={registry.length}
                   label="Registry studies"
                   detail="Saved ClinicalTrials.gov snapshots"
                 />
                 <Stat
-                  icon={ClipboardCheck}
                   value={history.pending_count}
                   label="Awaiting review"
                   detail={`${history.total} saved assessments`}
@@ -1335,7 +1342,7 @@ function App() {
                   <section className="panel patient-panel">
                     <div className="panel-head">
                       <div>
-                        <div className="eyebrow">01 / SELECT</div>
+                        <div className="eyebrow">Step 1 · Patient</div>
                         <h2>Choose a patient</h2>
                       </div>
                       <span className="count">{list.length}</span>
@@ -1421,7 +1428,7 @@ function App() {
                           {initials(patientName(patient))}
                         </div>
                         <div>
-                          <div className="eyebrow">SELECTED PATIENT</div>
+                          <div className="eyebrow">Selected patient</div>
                           <h2>{patientName(patient)}</h2>
                           <span className="muted">
                             Born {date(patient?.birthDate)}
@@ -1463,10 +1470,11 @@ function App() {
                     <section className="panel assessment-panel">
                       <div className="panel-head">
                         <div>
-                          <div className="eyebrow">02 / COMPARE</div>
+                          <div className="eyebrow">
+                            Step 2 · Trial requirements
+                          </div>
                           <h2>Prepare an assessment</h2>
                         </div>
-                        <Layers3 size={23} className="muted" />
                       </div>
                       <form onSubmit={run}>
                         <label className="field">
@@ -1783,12 +1791,11 @@ function App() {
     </div>
   );
 }
-function Stat({ icon: Icon, value, label, detail }) {
+function Stat({ value, label, detail }) {
   return (
     <section className="stat">
       <div className="stat-label">
         <span>{label}</span>
-        <Icon size={19} />
       </div>
       <strong>{value}</strong>
       <small>{detail}</small>

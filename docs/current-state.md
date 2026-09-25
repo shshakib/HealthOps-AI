@@ -1,5 +1,93 @@
 # HealthOps checkpoint
 
+## README and repository consistency review — September 24, 2026
+
+The README now leads with the workflow without the repeated "Local portfolio
+preview" label. It uses actual September 24 captures of the refreshed interface,
+retains the verified full-demo release link, and distinguishes reviewer actions
+from viewer access in the Mermaid diagram. Assessment storage and review history
+are explicitly SQLite; patient records remain behind HAPI/PostgreSQL. Detailed
+Python startup and API examples moved to the dashboard guide, and docs/README.md
+provides a navigation index. Machine-specific patient counts and repeated scope
+paragraphs were removed from the README.
+
+The existing interface refresh is included with this documentation update so a
+checkout matches the screenshots. Docker's build-context allowlist now includes
+frontend/public for the bundled font license. The superseded short-video recorder
+was removed; an unpublished older narration draft was preserved under the ignored
+.local/superseded-docs directory. Evaluation evidence, data snapshots, lock files,
+licenses, and historical release notes are retained intentionally.
+
+Frontend formatting/build, all ten isolated browser tests, Python lint/format,
+relative documentation links, and focused secret scans passed. No live reviews,
+accounts, or provider settings were changed. The repository-tour video remains
+local for review; only the full application walkthrough is featured in the README.
+
+## Repository video and demo presentation — September 24, 2026
+
+The README now keeps the two screenshots first, followed by one optional link to
+the complete 13:01 application walkthrough. The short recording is no longer
+featured. The long MP4 and SRT were uploaded to the existing v0.2.0 GitHub release;
+the historical short asset was retained. README, demo documentation, and the
+recording helpers were committed and pushed as `e20a0d2`. Earlier interface changes
+remain local and were not included in that focused commit.
+
+Video two is a captioned repository tour based on actual public GitHub captures
+at commit `2af2535`, with diagrams connecting the folders to the screening flow.
+It covers the frontend, backend, AI tools, data formats, runtime storage, docs,
+evaluation, tests, helper scripts, Docker, and CI. The 10:18 silent export, SRT,
+script, and chapter navigation are in `.local/video-two/export/`, pending review.
+See [repository recording notes](demo/video-two.md). Neither video changes live
+application data or makes provider calls.
+
+Full decoding passed for the 617.9-second MP4 (5,701,901 bytes), all 54 subtitle cues
+are continuous, and browser playback and chapter seeking were verified. The media
+helpers passed Ruff checks and formatting, and Gitleaks found no secrets in the
+scripts or demo docs. SHA-256:
+`b37564c5bdf80cbaaccd3240a2e3e3954be6fc392ce76b25bef7def4127f0128`.
+GitHub Actions run `36082125475` passed both jobs: Python/browser tests (including
+offline evaluation and frontend build) and the full-history secret scan.
+
+## Complete demo video — September 24, 2026
+
+Video one is a local, silent 13:01 edited walkthrough with 77 caption passages,
+current-flow diagrams, administrator settings, roles, trial-rule review, screening,
+evidence-only assistance, and a saved human-review example. It uses actual browser
+captures held for narration, not continuous cursor footage. All review actions were
+simulated in a separate SQLite ledger. Five Synthea records were copied read-only
+from HAPI; no live records, accounts, or model settings were changed.
+
+The MP4, SRT, timed narration, chapter list, timeline, and checksum manifest are in
+`.local/video-one/export/`. See [the recording notes](demo/video-one.md) and
+[caption source](demo/video-one-storyboard.json). Full video decoding and subtitle
+continuity/duration checks passed; the result is 1920 × 1080 H.264 with no audio.
+The MP4 and SRT are now published as release assets. The repository tour and
+publication status are covered in the newer checkpoint above.
+
+## Interface refresh — September 23, 2026
+
+The application now uses locally bundled IBM Plex Sans, an original H mark and
+favicon, off-white surfaces, dark text, and restrained blue actions. Navigation,
+workspace counts, patient lists, trial rules, findings, dialogs, login, and admin
+settings share the new styles. Status colours retain explicit text labels.
+The interface has larger supporting text, clearer form borders, and a keyboard
+skip link that preserves assessment URLs. Screening and permission logic are unchanged.
+
+All ten browser workflows passed after correcting an existing test timing race:
+the provider-settings test now waits for its assessment before reading its URL.
+Responsive checks cover 320, 390, 768, 1024, and 1440px widths. Desktop and mobile
+screens were visually inspected; keyboard focus and saved assessment navigation
+were checked. Frontend build, formatting, whitespace checks, and secret scan passed.
+The font, favicon, and font license are served locally; Docker copies the public
+assets into its build. See [design decisions and references](interface-design.md).
+
+September 24 deployment verification: all four Docker services are healthy. The
+live JavaScript, CSS, favicon, font, and font-license assets match the tested local
+build. The workspace still has five Synthea patients, nine assessments, and three
+registry studies. OpenAI / `gpt-5.4-mini` remains configured. An evidence-only
+assistant request recorded an MLflow trace successfully; no paid model call was
+made. These interface changes are local and have not been committed or pushed.
+
 ## Admin AI settings — September 22, 2026
 
 Model configuration now lives in **Settings → AI configuration**, available only

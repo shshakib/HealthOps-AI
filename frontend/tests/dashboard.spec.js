@@ -23,6 +23,8 @@ test("provider settings save and clear keys without exposing them or calling a m
     .getByRole("button", { name: "Run screening", exact: true })
     .click();
   const assistant = page.getByRole("region", { name: "Screening assistant" });
+  await expect(assistant).toBeVisible();
+  await expect(page).toHaveURL(/#assessment\/[a-f0-9-]+$/);
   await expect(assistant.getByLabel("AI provider")).toHaveCount(0);
   const id = page.url().split("#assessment/")[1];
   await page
@@ -392,6 +394,15 @@ test("mobile layout keeps navigation and forms inside viewport", async ({
   await expect(
     page.getByRole("button", { name: "Run screening", exact: true }),
   ).toBeEnabled();
+  for (const width of [320, 768, 1024]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -406,7 +417,7 @@ test("mobile layout keeps navigation and forms inside viewport", async ({
     .getByRole("button", { name: "Trial rules", exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: "From trial text to reviewed rules" }),
+    page.getByRole("heading", { name: "Trial rules", exact: true }),
   ).toBeVisible();
   expect(
     await page.evaluate(

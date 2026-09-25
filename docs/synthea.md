@@ -34,8 +34,8 @@ docker compose -f compose.yaml -f compose.fhir-dev.yaml up --build -d --wait --w
 docker compose -f compose.yaml up -d --wait --wait-timeout 600
 ```
 
-**This workspace already has generated and imported data.** Skip `generate` when
-resuming; it refuses to overwrite an existing FHIR directory. Import can be rerun.
+If you already generated data, skip `generate` when resuming; it refuses to
+overwrite an existing FHIR directory. Import can be rerun.
 The generation command launches a temporary fourth container and removes it when
 finished. Only the three application services stay running. Initial builds need
 internet access; saved files can be reimported without contacting Synthea online.

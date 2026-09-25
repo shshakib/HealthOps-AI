@@ -26,8 +26,8 @@ interpretation for the current snapshot; unsupported criteria stay manual. A sta
 patient-review submission loads the newer decision, preserves the user's draft,
 and requires renewed acknowledgement before another submission.
 
-The three existing actual-study drafts in the main workspace remain pending human
-review. UI testing uses a separate ledger, not your main decisions. The dashboard
+On a fresh installation, actual-study interpretations need human review and
+approval before screening. UI testing uses a separate ledger. The dashboard
 includes an [evidence assistant](assistant.md) with Ollama, OpenAI, Claude, and Gemini adapters
 and explicit offline fallback. It uses authenticated reviewer accounts but does not contact patients,
 or enroll anyone.
@@ -96,3 +96,51 @@ are local artifacts, not committed patient information.
 
 GitHub Actions uses Chromium and an isolated handcrafted FHIR stand-in so it does
 not need the Docker stack. See [automated checks](ci.md) for this separate CI mode.
+
+## Run directly with Python (Windows PowerShell)
+
+Use Python 3.11 or newer and Node.js 24. From the repository root:
+
+```powershell
+python -m venv .venv
+& '.\.venv\Scripts\python.exe' -m pip install -c requirements-dev.lock -e '.[dev]'
+cd frontend
+npm ci --ignore-scripts --no-audit --no-fund
+npm run build
+cd ..
+& '.\.venv\Scripts\python.exe' -m healthops.auth admin
+& '.\.venv\Scripts\python.exe' -m healthops
+```
+
+Open `http://127.0.0.1:8000/` and sign in. Create the administrator once per
+database; later starts only need the final command. The bundled fictional
+exercise works without Docker or a model API key. Imported Synthea records need
+a running HAPI service. Optional MLflow dependencies and configuration are
+covered in the [evaluation guide](evaluation.md).
+
+## Try the review flow through the API
+
+After dashboard sign-in, open `/docs` on the same host and port. Keep
+`X-HealthOps-Request` set to `1` for mutations.
+
+1. Execute `POST /api/v1/screenings` with `demo-001`, `DEMO-T2D-001`, and
+   assessment date `2026-09-01`. Copy the returned assessment `id`.
+2. Inspect the criteria, evidence, and `pending_review` status.
+3. Submit `POST /api/v1/screenings/{screening_id}/reviews` with:
+
+```json
+{
+  "decision": "advance_for_screening",
+  "reason": "Reviewed the fictional criteria and evidence; proceed to further screening.",
+  "expected_revision": 0
+}
+```
+
+4. Retrieve `GET /api/v1/screenings/{screening_id}` to inspect the saved review.
+   Subsequent decisions must use the latest returned revision.
+5. Try `demo-002` for an old lab result (`unknown`) and `demo-003` for an
+   out-of-range result (`not_met`). The other decisions are `request_information`
+   and `dismiss`.
+
+These are simulated decisions on fictional cases. Advancing means further human
+screening; it does not establish eligibility, contact anyone, or enroll a patient.

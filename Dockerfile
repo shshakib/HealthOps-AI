@@ -4,6 +4,7 @@ COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci --ignore-scripts --no-audit --no-fund
 COPY frontend/index.html frontend/vite.config.js ./
 COPY frontend/src/ ./src/
+COPY frontend/public/ ./public/
 RUN npm run build
 
 # python:3.11-slim-bookworm, resolved 2026-09-13.

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import AISettings from "./AISettings.jsx";
+import BrandMark from "./BrandMark.jsx";
 
 const Identity = createContext(null);
 export const useIdentity = () => useContext(Identity);
@@ -348,11 +349,17 @@ export default function AuthGate({ children }) {
     return (
       <main className="login-shell">
         <form className="login-card" onSubmit={login}>
+          <div className="login-brand">
+            <BrandMark /> HealthOps
+          </div>
           <span className="eyebrow">
-            HEALTHOPS AI · SYNTHETIC DATA WORKSPACE
+            Clinical research · Synthetic data demo
           </span>
           <h1>Sign in to HealthOps</h1>
-          <p>Review trial evidence and keep every decision accountable.</p>
+          <p>
+            Sign in to screen patients, inspect evidence, and record your
+            review.
+          </p>
           <label className="field">
             Username
             <input

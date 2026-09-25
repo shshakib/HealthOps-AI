@@ -14,6 +14,9 @@ registry records bundled for this demonstration.
 - HAPI FHIR, PostgreSQL, Python, Node.js, and application dependencies retain their
   respective licenses. Dependency versions are recorded in `requirements-dev.lock`,
   `frontend/package-lock.json`, and the pinned container definitions.
+- The dashboard bundles IBM Plex Sans via Fontsource under the SIL Open Font
+  License 1.1. Its [license](frontend/public/assets/ibm-plex-sans-LICENSE.txt)
+  is also included in the built application. Fonts are served locally.
 - Codes and terminology identifiers in synthetic examples are included to demonstrate
   interoperability, not as a redistributed terminology database or a claim of clinical
   validity. No real patient charts are included.

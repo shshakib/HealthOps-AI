@@ -3,8 +3,9 @@
 GitHub Actions runs on pushes to `main`, version tags, pull requests, and manual dispatch.
 The workflow has read-only repository permissions and actions pinned to commit SHAs.
 
-The test job installs the pinned Python dependencies, runs Ruff and pytest, checks
-frontend formatting, builds the dashboard, and runs six workflows in Chromium on Linux.
+The test job installs the Python dependencies with the observability constraints,
+runs Ruff, pytest, and offline assistant evaluation, checks frontend formatting,
+builds the dashboard, and runs the browser workflows in Chromium on Linux.
 Browser checks use a fresh temporary SQLite ledger and a handcrafted FHIR boundary
 stand-in in `scripts/dashboard_test_server.py`. The stand-in is not Synthea-generated
 data and is never used by the normal application server. Provider settings do not
