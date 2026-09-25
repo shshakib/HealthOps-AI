@@ -8,15 +8,16 @@ It starts with the architecture, then covers login, user management, administrat
 model settings, role permissions, trial-rule review, patient screening, evidence,
 the optional assistant, human review, and saved history.
 
-See [recording details](video-one.md) for the exact scope and
-[timed narration](video-one-narration.md) for the script. It uses real interface
+The video uses real interface
 captures held on screen for explanation. Patients are synthetic, review actions
 are simulated in an isolated ledger, and the assistant runs in evidence-only mode.
 The older short recording remains a historical release asset; it is no longer the
 featured demo.
 
-The separate [repository tour](video-two.md) explains the folders, source files,
-data formats, storage, and automated checks. It is available locally for review.
+The separate [repository tour](https://github.com/shshakib/HealthOps-AI/releases/download/v0.2.0/healthops-repository-tour.mp4)
+explains the folders, source files, data formats, storage, and automated checks
+in 10:18. It shows the published repository at commit `2af2535`; later cleanup
+and interface changes are not included in those captures.
 
 ## Your final manual acceptance check
 

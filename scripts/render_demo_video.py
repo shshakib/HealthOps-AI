@@ -2,6 +2,7 @@
 
 Local media dependencies: Pillow and imageio-ffmpeg (not app dependencies).
 The capture directory is intentionally ignored by Git. No app secrets are read.
+Storyboards and narration stay in .local/video-{one,two}/production/.
 """
 
 import argparse
@@ -18,8 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 WORK = ROOT / ".local/video-one"
 OUT = WORK / "export"
 FRAMES = WORK / "frames"
-DOCS = ROOT / "docs/demo"
-STORY = json.loads((DOCS / "video-one-storyboard.json").read_text(encoding="utf-8"))
+PRODUCTION = WORK / "production"
+STORY = []
 VIDEO = "one"
 STEM = "healthops-full-demo"
 TITLE = "Complete application walkthrough"
@@ -476,7 +477,7 @@ def main():
     concat.append(f"file '{frame.as_posix()}'")
     (WORK / "frames.ffconcat").write_text("\n".join(concat) + "\n", encoding="utf-8")
     (OUT / f"{STEM}.srt").write_text("\n".join(captions), encoding="utf-8")
-    (DOCS / f"video-{VIDEO}-narration.md").write_text("\n".join(narration), encoding="utf-8")
+    (PRODUCTION / f"video-{VIDEO}-narration.md").write_text("\n".join(narration), encoding="utf-8")
     (OUT / "voiceover-script.md").write_text("\n".join(narration), encoding="utf-8")
     (OUT / "timeline.json").write_text(json.dumps(timeline, indent=2), encoding="utf-8")
     metadata = [
@@ -578,11 +579,17 @@ if __name__ == "__main__":
         WORK = ROOT / ".local/video-two"
         OUT = WORK / "export"
         FRAMES = WORK / "frames"
-        STORY = json.loads((DOCS / "video-two-storyboard.json").read_text(encoding="utf-8"))
         STEM = "healthops-repository-tour"
         TITLE = "Repository walkthrough"
         TAG = "PUBLIC REPOSITORY  ·  LOCAL APPLICATION"
         COMMENT = (
             "Actual public GitHub captures and architecture cards; no runtime data or secrets."
         )
+    PRODUCTION = WORK / "production"
+    storyboard = PRODUCTION / f"video-{VIDEO}-storyboard.json"
+    if not storyboard.is_file():
+        parser.error(
+            f"Local storyboard not found: {storyboard}. Restore your production files first."
+        )
+    STORY = json.loads(storyboard.read_text(encoding="utf-8"))
     main()

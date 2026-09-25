@@ -13,8 +13,8 @@ and Docker quick start.
 | Configure a model and understand its tools | [Evidence assistant](assistant.md) |
 | Inspect monitoring and evaluation results | [Evaluation](evaluation.md), [fresh results](evaluation/fresh/README.md) |
 | Understand the automated checks | [CI](ci.md) |
-| Watch the application walkthrough | [Demo](demo/video-one.md) |
-| Read the repository-tour script | [Repository tour](demo/video-two.md) |
+| Watch the application walkthrough | [Application video](https://github.com/shshakib/HealthOps-AI/releases/download/v0.2.0/healthops-full-demo.mp4) |
+| Explore the repository structure | [Repository video](https://github.com/shshakib/HealthOps-AI/releases/download/v0.2.0/healthops-repository-tour.mp4) |
 
 The [design notes](interface-design.md) explain the interface choices.
 The [project brief](project-brief.md) and [milestones](milestones.md) preserve the

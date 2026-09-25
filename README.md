@@ -46,9 +46,10 @@ isolated demonstration workspace.*
 *The evidence-only assistant explains why a saved requirement is unknown. Both
 screenshots were captured on September 24, 2026; all patients shown are synthetic.*
 
-For a detailed tour, [watch the complete walkthrough (13 minutes, with captions)](https://github.com/shshakib/HealthOps-AI/releases/download/v0.2.0/healthops-full-demo.mp4).
-It covers the architecture, login and permissions, settings, trial rules, screening,
-and human review. [Recording details and narration](docs/demo/video-one.md).
+For a closer look, both videos have captions and no audio:
+
+- [Application walkthrough (13 minutes)](https://github.com/shshakib/HealthOps-AI/releases/download/v0.2.0/healthops-full-demo.mp4) — architecture, login, settings, trial rules, screening, and human review.
+- [Repository walkthrough (10 minutes)](https://github.com/shshakib/HealthOps-AI/releases/download/v0.2.0/healthops-repository-tour.mp4) — folders, source code, data storage, Docker, and automated checks.
 
 ## How it works
 
@@ -159,7 +160,7 @@ The local ledger is not tamper-proof. [Account and permission details](docs/auth
 | `tests/` | Python behavior and integration tests |
 | `scripts/` | Local checks, fixture servers, and media-production helpers |
 | `infrastructure/` | Synthea generator Dockerfile |
-| `docs/` | Setup guides, evaluation evidence, design notes, and recording scripts |
+| `docs/` | Setup guides, evaluation evidence, and design notes |
 | `.github/workflows/` | Automated tests, builds, offline evaluation, and secret scan |
 
 Generated patient exports, databases, credentials, videos, and build output are

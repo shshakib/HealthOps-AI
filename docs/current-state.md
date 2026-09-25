@@ -1,5 +1,14 @@
 # HealthOps checkpoint
 
+## Both videos published; narration kept locally — September 24, 2026
+
+The README links directly to the application and repository MP4s on the v0.2.0
+release. Video scripts, caption storyboards, and production notes were moved out
+of Git into `.local/video-one/production/` and `.local/video-two/production/`.
+SRTs and voice-over scripts remain in each video's local export directory. The
+renderer now reads and writes these local paths. Separate subtitle downloads
+are removed from the release; the captions already visible in the videos remain.
+
 ## README and repository consistency review — September 24, 2026
 
 The README now leads with the workflow without the repeated "Local portfolio
@@ -37,7 +46,7 @@ at commit `2af2535`, with diagrams connecting the folders to the screening flow.
 It covers the frontend, backend, AI tools, data formats, runtime storage, docs,
 evaluation, tests, helper scripts, Docker, and CI. The 10:18 silent export, SRT,
 script, and chapter navigation are in `.local/video-two/export/`, pending review.
-See [repository recording notes](demo/video-two.md). Neither video changes live
+Recording notes are now local under `.local/video-two/production/`. Neither video changes live
 application data or makes provider calls.
 
 Full decoding passed for the 617.9-second MP4 (5,701,901 bytes), all 54 subtitle cues
@@ -58,8 +67,8 @@ simulated in a separate SQLite ledger. Five Synthea records were copied read-onl
 from HAPI; no live records, accounts, or model settings were changed.
 
 The MP4, SRT, timed narration, chapter list, timeline, and checksum manifest are in
-`.local/video-one/export/`. See [the recording notes](demo/video-one.md) and
-[caption source](demo/video-one-storyboard.json). Full video decoding and subtitle
+`.local/video-one/export/`. Recording notes and caption sources now live under
+`.local/video-one/production/`. Full video decoding and subtitle
 continuity/duration checks passed; the result is 1920 × 1080 H.264 with no audio.
 The MP4 and SRT are now published as release assets. The repository tour and
 publication status are covered in the newer checkpoint above.
